@@ -1,4 +1,7 @@
 #! /bin/sh
+if [[ $enable_video =~ "yes" ]];then
+echo "start build video app"
+
 QT_PROJECT_FILE=video.pro
 TOP_DIR=$(pwd)
 APP_DIR_NAME=$(basename $TOP_DIR)
@@ -28,6 +31,7 @@ fi
 #qmake and build target
 $QMAKE
 make $mulcore_cmd
+check_err_exit $?
 rm -rf $TARGET_APP_PATH
 if [ ! -d "$TARGET_APP_PATH" ]; then
 	mkdir -p "$TARGET_APP_PATH"  
@@ -64,4 +68,6 @@ fi
 #we should restore the modifcation which is made on this script above.
 if [ "$PRODUCT_NAME"x = "px3-se"x ];then
 sed -i '/DEVICE_EVB/s/^.//' $QT_PROJECT_FILE 
+fi
+
 fi
