@@ -5,6 +5,12 @@
 
 videoMiddleWidgets::videoMiddleWidgets(QWidget *parent):baseWidget(parent)
 {
+#ifndef DEVICE_EVB
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+#endif
+
+    setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     initLayout();
 }
 

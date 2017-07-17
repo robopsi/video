@@ -4,14 +4,12 @@ import QtMultimedia 5.0
 Rectangle {
     id:root
     color:"black"
+    opacity: 0
 
     MediaPlayer {
         id:mediaPlayer
         objectName: qsTr("mediaPlayer")
         autoLoad: false
-        //        loops: Audio.Infinite
-        //        source: "file:///c:/Users/cjs/mnt/video/第2课：上午字符串.avi"
-        //        autoPlay: true
 
         onError: {
             if (MediaPlayer.NoError != error) {
@@ -25,6 +23,7 @@ Rectangle {
         id: video
         objectName: qsTr("videoContent")
         anchors.fill: parent
+	anchors.topMargin: 70
         source: mediaPlayer
     }
 }

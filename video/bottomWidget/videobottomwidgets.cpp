@@ -46,6 +46,9 @@ void videoBottomWidgets::initLayout()
                                   "QPushButton::pressed{border-image:url(:/image/music/btn_play (3).png);}");
 
     m_btnOpenFile->setStyleSheet("QPushButton{border-image:url(:/image/video/video_open_file.png);}");
+#ifdef DEVICE_EVB
+    m_btnOpenFile->setVisible(false);
+#endif
 
     // first layout
     QHBoxLayout *hlyout1 = new QHBoxLayout;

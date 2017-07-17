@@ -9,6 +9,11 @@
 
 videoWidgets::videoWidgets(QWidget *parent): baseWidget(parent)
 {
+#ifndef DEVICE_EVB
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+#endif
+
     setStyleSheet("QLabel{color:white;}");
     initLayout();
     initPlayerAndConnection();
