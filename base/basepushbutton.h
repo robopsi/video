@@ -11,24 +11,22 @@
 #include <QPainter>
 #include <QRect>
 
-// 扁平按钮
-class flatButton : public QPushButton
+class FlatButton : public QPushButton
 {
     Q_OBJECT
 public:
-    flatButton(QWidget*parent=0);
-    flatButton(const QString& str,QWidget*parent=0);
+    FlatButton(QWidget*parent=0);
+    FlatButton(const QString& str,QWidget*parent=0);
 };
 
-// 主界面导航按钮
-class guideButton : public QPushButton
+class GuideButton : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit guideButton(QString pixnormal,QString text,QWidget*parent);
+    explicit GuideButton(QString pixnormal,QString text,QWidget*parent);
 
 protected:
-//    void paintEvent(QPaintEvent *);
+    //void paintEvent(QPaintEvent *);
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
 
@@ -38,7 +36,6 @@ private:
     bool m_enter;
 };
 
-// 四态图标
 class FourStateButton:public QPushButton
 {
     Q_OBJECT
@@ -57,12 +54,11 @@ private:
 };
 
 
-// 音乐声音按钮
-class volButton:public QPushButton
+class VolButton:public QPushButton
 {
     Q_OBJECT
 public:
-    volButton(const QString& normal,QWidget*parent=0);
+    VolButton(const QString& normal,QWidget*parent=0);
     void setParentSlider(QSlider* slider){m_partnerslider=slider;}
 protected:
     void enterEvent(QEvent*);
@@ -86,12 +82,11 @@ signals:
     void setMute(int);
 };
 
-// statck Button
-class stackButton:public QPushButton
+class StackButton:public QPushButton
 {
     Q_OBJECT
 public:
-    explicit stackButton(const QString& pixnormal,const QString& pixhover,const QString& pixsel,QWidget*parent);
+    explicit StackButton(const QString& pixnormal,const QString& pixhover,const QString& pixsel,QWidget*parent);
     void setselected(bool=true);
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -106,8 +101,5 @@ private:
     QPixmap m_pixhover;
     QPixmap m_pixselected;
 };
-
-
-
 
 #endif // BASEPUSHBUTTON_H

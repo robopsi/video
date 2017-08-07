@@ -3,15 +3,14 @@
 
 #include <QWidget>
 #include <QMouseEvent>
-#include "basewidget.h"
 
 enum CursorPos{Default,Right,Left,Bottom,Top,TopRight,TopLeft,BottomRight,BottomLeft};
 struct pressWindowsState
 {
-    bool    MousePressed;
-    bool   IsPressBorder;
-    QPoint  MousePos;
-    QPoint  WindowPos;
+    bool MousePressed;
+    bool IsPressBorder;
+    QPoint MousePos;
+    QPoint WindowPos;
     QSize PressedSize;
 };
 
@@ -24,7 +23,7 @@ public:
     inline void setBorder(int border);
     void mouseMoveRect(const QPoint &p);
 protected:
-    virtual void mouseMoveEvent(QMouseEvent *event); //交给别个调用
+    virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     pressWindowsState m_state;

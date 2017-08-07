@@ -1,14 +1,13 @@
 #include "videolist.h"
 #include <QTime>
 
-videoList::videoList(QObject *parent):QObject(parent)
+VideoList::VideoList(QObject *parent):QObject(parent)
 {
     m_currentIndex = 0 ;
     m_list.empty();
 }
 
-
-QUrl videoList::getUrlAt(int index)
+QUrl VideoList::getUrlAt(int index)
 {
     if(m_list.isEmpty())
         return QUrl("");
@@ -16,7 +15,7 @@ QUrl videoList::getUrlAt(int index)
     return m_list.value(index);
 }
 
-QUrl videoList::getNextVideoUrl()
+QUrl VideoList::getNextVideoUrl()
 {
     if(m_currentIndex+1>=m_list.count())
     {
@@ -29,7 +28,7 @@ QUrl videoList::getNextVideoUrl()
     return getUrlAt(m_currentIndex);
 }
 
-QUrl videoList::getPreVideoUrl()
+QUrl VideoList::getPreVideoUrl()
 {
     if(m_currentIndex == 0)
     {
@@ -40,4 +39,10 @@ QUrl videoList::getPreVideoUrl()
         m_currentIndex--;
     }
     return getUrlAt(m_currentIndex);
+}
+
+void VideoList::clearList()
+{
+    m_list.clear();
+    m_currentIndex=0;
 }

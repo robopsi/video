@@ -4,7 +4,6 @@ import QtMultimedia 5.0
 Rectangle {
     id:root
     color:"black"
-    opacity: 0
 
     MediaPlayer {
         id:mediaPlayer
@@ -23,7 +22,7 @@ Rectangle {
         id: video
         objectName: qsTr("videoContent")
         anchors.fill: parent
-        anchors.topMargin: 70
+        anchors.topMargin: 115
         source: mediaPlayer
     }
 }

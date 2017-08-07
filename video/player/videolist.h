@@ -4,21 +4,30 @@
 #include <QObject>
 #include <QUrl>
 
-class videoList:public QObject
+/**
+ * Used for manager the video list.
+ *
+ * Each video item saved with url and you can add、remove
+ * or get video item.
+ */
+class VideoList:public QObject
 {
     Q_OBJECT
 public:
-    videoList(QObject *parent = 0);
-    void clearList(){m_list.clear();m_currentIndex=0;}
+    VideoList(QObject *parent = 0);
 
-    inline void addToPlayList(const QString& path){m_list.append(QUrl::fromLocalFile(path));}
     QUrl getUrlAt(int index);
     QUrl getNextVideoUrl();
     QUrl getPreVideoUrl();
+    void clearList();
+
     QList<QUrl> getUrlList(){return m_list;}
+    inline void addToPlayList(const QString& path){m_list.append(QUrl::fromLocalFile(path));}
 private:
-    QList<QUrl> m_list;  // 播放列表
-    int m_currentIndex; // 当前播放曲目下标
+    // Current play list.
+    QList<QUrl> m_list;
+    // Current play index.
+    int m_currentIndex;
 };
 
 #endif // VIDEOLIST_H

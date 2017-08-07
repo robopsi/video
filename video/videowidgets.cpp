@@ -2,60 +2,51 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSettings>
+#include <QMessageBox>
 
 #include "player/videolist.h"
 #include "global_value.h"
-#include <QMessageBox>
 
-videoWidgets::videoWidgets(QWidget *parent): baseWidget(parent)
+VideoWidgets::VideoWidgets(QWidget *parent): BaseWidget(parent)
 {
-#ifndef DEVICE_EVB
-    setWindowFlags(Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_TranslucentBackground, true);
-#endif
-
     setStyleSheet("QLabel{color:white;}");
+
     initLayout();
     initPlayerAndConnection();
     readSetting();
     setOriginState();
 }
 
-/**
- * 读取之前保存设置并应用,包括音量等
- */
-void videoWidgets::readSetting()
+void VideoWidgets::readSetting()
 {
     QSettings setting("config.ini",QSettings::IniFormat,0);
+
     setting.beginGroup("videoConfig");
-    // 音量
+    // Get volume value.
     int vol=setting.value("volume").toInt();
     if(vol==0)
         vol=80;
     m_player->setVolume(vol);
-    m_bottomWid->m_volWidget->m_slider_vol->setValue(m_player->volume());
-
+    m_bottomWid->m_VolWidget->m_slider_vol->setValue(m_player->volume());
     setting.endGroup();
 }
 
-/**
- * 还原界面为初始状态
- */
-void videoWidgets::setOriginState()
+void VideoWidgets::setOriginState()
 {
     m_topWid->setPlayingVideoName(str_videoName_default);
-    m_middleWid->m_leftWid->removePositionWidget();
-    m_middleWid->m_rightWid->setOriginState();
+    m_middleWid->m_contentWid->removePositionWidget();
+    m_middleWid->m_listWid->setOriginState();
 }
 
 
-void videoWidgets::initLayout()
+void VideoWidgets::initLayout()
 {
     QVBoxLayout *vmainlyout = new QVBoxLayout;
 
-    m_topWid = new videoTopWidgets(this);
-    m_middleWid = new videoMiddleWidgets(this);
-    m_bottomWid = new videoBottomWidgets(this);
+    m_topWid = new VideoTopWidgets(this);
+    m_middleWid = new VideoMiddleWidgets(this);
+    m_bottomWid = new VideoBottomWidgets(this);
+    m_bottomWid->setVisible(false);
 
     vmainlyout->addWidget(m_topWid);
     vmainlyout->addWidget(m_middleWid);
@@ -66,11 +57,9 @@ void videoWidgets::initLayout()
     setLayout(vmainlyout);
 }
 
-void videoWidgets::initPlayerAndConnection()
+void VideoWidgets::initPlayerAndConnection()
 {
-    m_player = m_middleWid->m_leftWid->getMediaPlayerFormQml();
-
-    //    m_player->setVideoOutput(m_middleWid->m_leftWid->getContentWidget());
+    m_player = m_middleWid->m_contentWid->getMediaPlayerFormQml();
 
     connect(m_player,SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),this,SLOT(slot_onMediaStateChanged(QMediaPlayer::MediaStatus)));
     connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(slot_onPlayerStateChanged(QMediaPlayer::State)));
@@ -80,28 +69,28 @@ void videoWidgets::initPlayerAndConnection()
 
     connect(m_player,SIGNAL(error(QMediaPlayer::Error)),this,SLOT(slot_onErrorOn(QMediaPlayer::Error)));
 
-    connect(m_middleWid->m_rightWid->m_localTable,SIGNAL(cellClicked(int,int)),this,SLOT(slot_onLocalListItemDoubleClick(int,int)));
+    connect(m_middleWid->m_listWid->m_localTable,SIGNAL(cellClicked(int,int)),this,SLOT(slot_onLocalListItemDoubleClick(int,int)));
     connect(m_bottomWid->m_btnPlayPause,SIGNAL(clicked(bool)),this,SLOT(slot_setPlayPause()));
     connect(m_bottomWid->m_btnNext,SIGNAL(clicked(bool)),this,SLOT(slot_nextVideo()));
     connect(m_bottomWid->m_btnLast,SIGNAL(clicked(bool)),this,SLOT(slot_lastVideo()));
     connect(m_bottomWid->m_btnOpenFile,SIGNAL(clicked(bool)),this,SLOT(slot_addVideo()));
-    connect(m_bottomWid->m_volWidget,SIGNAL(sig_valueChanged(int)),this,SLOT(slot_volumeChanged(int)));
+    connect(m_bottomWid->m_VolWidget,SIGNAL(sig_valueChanged(int)),this,SLOT(slot_volumeChanged(int)));
 
-    connect(m_middleWid->m_leftWid->getContentWidget(),SIGNAL(contentOneClick()),this,SLOT(slot_setPlayPause()));
-    connect(m_middleWid->m_leftWid->getContentWidget(),SIGNAL(contentDoubleClick()),this,SLOT(slot_onContentDoubleClick()));
-    connect(m_middleWid->m_leftWid,SIGNAL(sig_sliderPositionChanged(int)),this,SLOT(slot_onSliderPositionChanged(int)));
+    connect(m_middleWid->m_contentWid->getSurfaceWid(),SIGNAL(contentOneClick()),this,SLOT(slot_setPlayPause()));
+    connect(m_middleWid->m_contentWid->getSurfaceWid(),SIGNAL(contentDoubleClick()),this,SLOT(slot_onContentDoubleClick()));
+    connect(m_middleWid->m_contentWid,SIGNAL(sig_sliderPositionChanged(int)),this,SLOT(slot_onSliderPositionChanged(int)));
 
-    connect(m_topWid->m_btnreturn,SIGNAL(clicked(bool)),this,SLOT(slot_setPause()));
+    connect(m_topWid->m_btnreturn,SIGNAL(clicked(bool)),this,SLOT(slot_returnClick()));
 }
 
-void videoWidgets::slot_onErrorOn(QMediaPlayer::Error )
+void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
 {
     m_player->setMedia(NULL);
     setOriginState();
 }
 
 
-void videoWidgets::slot_onMediaStateChanged(QMediaPlayer::MediaStatus status)
+void VideoWidgets::slot_onMediaStateChanged(QMediaPlayer::MediaStatus status)
 {
     switch(status){
     case QMediaPlayer::EndOfMedia:
@@ -112,7 +101,7 @@ void videoWidgets::slot_onMediaStateChanged(QMediaPlayer::MediaStatus status)
     }
 }
 
-void videoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
+void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
 {
     switch(state)
     {
@@ -128,23 +117,23 @@ void videoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
     }
 }
 
-void videoWidgets::slot_onCurrentMediaChanged(QMediaContent content)
+void VideoWidgets::slot_onCurrentMediaChanged(QMediaContent content)
 {
-    m_middleWid->m_rightWid->updatePlayingItemStyle(content);
-    m_topWid->setPlayingVideoName(m_middleWid->m_rightWid->getCurrentVideoName());
+    m_middleWid->m_listWid->updatePlayingItemStyle(content);
+    m_topWid->setPlayingVideoName(m_middleWid->m_listWid->getCurrentVideoName());
 }
 
-void videoWidgets::slot_denyPlay()
+void VideoWidgets::slot_denyPlay()
 {
     m_player->setMedia(m_onPlayUrl);
     m_player->play();
 }
 
-void videoWidgets::slot_onLocalListItemDoubleClick(int row, int)
+void VideoWidgets::slot_onLocalListItemDoubleClick(int row, int)
 {
 #ifdef DEVICE_EVB
     m_player->stop();
-    QUrl url= m_middleWid->m_rightWid->getVideoList()->getUrlAt(row);
+    QUrl url= m_middleWid->m_listWid->getVideoList()->getUrlAt(row);
     if(m_player->isAvailable()){
         m_player->setMedia(url);
         m_player->play();
@@ -152,15 +141,18 @@ void videoWidgets::slot_onLocalListItemDoubleClick(int row, int)
 #else
     m_player->stop();
     m_player->setMedia(NULL);
-    QUrl url= m_middleWid->m_rightWid->getVideoList()->getUrlAt(row);
+    QUrl url= m_middleWid->m_listWid->getVideoList()->getUrlAt(row);
     m_onPlayUrl = url;
     if(m_player->isAvailable()){
         QTimer::singleShot(200,this,SLOT(slot_denyPlay()));
     }
 #endif
+    m_middleWid->slot_playMode();
+    m_bottomWid->setVisible(true);
+
 }
 
-void videoWidgets::slot_setPlayPause()
+void VideoWidgets::slot_setPlayPause()
 {
     if(m_player->state()==QMediaPlayer::PlayingState){
         m_player->pause();
@@ -172,11 +164,11 @@ void videoWidgets::slot_setPlayPause()
     }
 }
 
-void videoWidgets::slot_nextVideo()
+void VideoWidgets::slot_nextVideo()
 {
 #ifdef DEVICE_EVB
     m_player->stop();
-    videoList *m_playList = m_middleWid->m_rightWid->getVideoList();
+    VideoList *m_playList = m_middleWid->m_listWid->getVideoList();
     if(m_player->isAvailable()){
         m_player->setMedia(m_playList->getNextVideoUrl());
         m_player->play();
@@ -184,7 +176,7 @@ void videoWidgets::slot_nextVideo()
 #else
     m_player->stop();
     m_player->setMedia(NULL);
-    videoList *m_playList = m_middleWid->m_rightWid->getVideoList();
+    VideoList *m_playList = m_middleWid->m_listWid->getVideoList();
     m_onPlayUrl = m_playList->getNextVideoUrl();
     if(m_player->isAvailable()){
         QTimer::singleShot(200,this,SLOT(slot_denyPlay()));
@@ -192,11 +184,11 @@ void videoWidgets::slot_nextVideo()
 #endif
 }
 
-void videoWidgets::slot_lastVideo()
+void VideoWidgets::slot_lastVideo()
 {
 #ifdef DEVICE_EVB
     m_player->stop();
-    videoList *m_playList = m_middleWid->m_rightWid->getVideoList();
+    VideoList *m_playList = m_middleWid->m_listWid->getVideoList();
     if(m_player->isAvailable()){
         m_player->setMedia(m_playList->getPreVideoUrl());
         m_player->play();
@@ -204,7 +196,7 @@ void videoWidgets::slot_lastVideo()
 #else
     m_player->stop();
     m_player->setMedia(NULL);
-    videoList *m_playList = m_middleWid->m_rightWid->getVideoList();
+    VideoList *m_playList = m_middleWid->m_listWid->getVideoList();
     m_onPlayUrl = m_playList->getPreVideoUrl();
     if(m_player->isAvailable()){
         QTimer::singleShot(200,this,SLOT(slot_denyPlay()));
@@ -212,62 +204,71 @@ void videoWidgets::slot_lastVideo()
 #endif
 }
 
-void videoWidgets::slot_onContentDoubleClick()
+void VideoWidgets::slot_onContentDoubleClick()
 {
     if(m_player->state()==QMediaPlayer::PlayingState||m_player->state()==QMediaPlayer::PausedState){
-        //        if(m_middleWid->m_leftWid->getContentWidget()->isFullScreen()){
-        //            m_middleWid->m_leftWid->getContentWidget()->setFullScreen(false);
+        //        if(m_middleWid->m_contentWid->getContentWidget()->isFullScreen()){
+        //            m_middleWid->m_contentWid->getContentWidget()->setFullScreen(false);
         //        }else{
-        //            m_middleWid->m_leftWid->getContentWidget()->setFullScreen(true);
+        //            m_middleWid->m_contentWid->getContentWidget()->setFullScreen(true);
         //        }
     }
 }
 
-void videoWidgets::slot_onDurationChanged(qint64 duration)
+void VideoWidgets::slot_onDurationChanged(qint64 duration)
 {
-    m_middleWid->m_leftWid->addPositionWidget();
-    m_middleWid->m_leftWid->onDurationChanged(duration);
+    m_middleWid->m_contentWid->addPositionWidget();
+    m_middleWid->m_contentWid->onDurationChanged(duration);
 }
 
-void videoWidgets::slot_onMediaPositionChanged(qint64 position)
+void VideoWidgets::slot_onMediaPositionChanged(qint64 position)
 {
-    m_middleWid->m_leftWid->onMediaPositionChanged(position);
+    m_middleWid->m_contentWid->onMediaPositionChanged(position);
 }
 
-void videoWidgets::slot_onSliderPositionChanged(int position)
+void VideoWidgets::slot_onSliderPositionChanged(int position)
 {
     m_player->setPosition(position);
 }
 
-void videoWidgets::slot_addVideo()
+void VideoWidgets::slot_addVideo()
 {
-    m_middleWid->m_rightWid->addVideo();
+    m_middleWid->m_listWid->addVideo();
 }
 
-void videoWidgets::slot_volumeChanged(int value)
+void VideoWidgets::slot_volumeChanged(int value)
 {
     m_player->setVolume(value);
 }
 
-void videoWidgets::savaSetting()
+void VideoWidgets::savaSetting()
 {
     QSettings setting("config.ini",QSettings::IniFormat,0);
-
     setting.beginGroup("videoConfig");
     setting.setValue("volume",m_player->volume());
     setting.endGroup();
+
     m_player->pause();
 }
 
-void videoWidgets::slot_setPause()
+void VideoWidgets::slot_returnClick()
 {
-    // 离开之前要释放音频通道,QMediaPlayer release方法，只好设置media为null
-    m_player->stop();
-    m_player->setMedia(NULL);
-    setOriginState();
+    if(m_middleWid->isCurrentPlayMode()){
+        m_player->stop();
+        m_player->setMedia(NULL);
+        setOriginState();
+        m_middleWid->slot_listMode();
+        m_bottomWid->setVisible(false);
+    }else{
+        // Release media source and quit application.
+        m_player->stop();
+        m_player->setMedia(NULL);
+        setOriginState();
+        mainWindow->slot_appQuit();
+    }
 }
 
-void videoWidgets::updateVolume(bool volumeAdd)
+void VideoWidgets::updateVolume(bool volumeAdd)
 {
     if(volumeAdd){
         if(m_player->volume()<95)
@@ -288,7 +289,14 @@ void videoWidgets::updateVolume(bool volumeAdd)
             m_player->setVolume(0);
         }
     }
-    m_bottomWid->m_volWidget->m_slider_vol->setValue(m_player->volume());
+    m_bottomWid->m_VolWidget->m_slider_vol->setValue(m_player->volume());
+}
+
+VideoWidgets::~VideoWidgets()
+{
+    delete m_topWid;
+    delete m_middleWid;
+    delete m_bottomWid;
 }
 
 

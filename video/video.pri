@@ -1,11 +1,11 @@
-INCLUDEPATH +=$$PWD topWidget
-include(topWidget/topWidget.pri)
+INCLUDEPATH +=$$PWD top
+include(top/top.pri)
 
-INCLUDEPATH +=$$PWD middleWidget
-include(middleWidget/middleWidget.pri)
+INCLUDEPATH +=$$PWD middle
+include(middle/middle.pri)
 
-INCLUDEPATH +=$$PWD bottomWidget
-include(bottomWidget/bottomWidget.pri)
+INCLUDEPATH +=$$PWD bottom
+include(bottom/bottom.pri)
 
 INCLUDEPATH +=$$PWD player
 include(player/player.pri)
