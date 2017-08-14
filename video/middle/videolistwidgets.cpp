@@ -16,11 +16,26 @@ VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
     //Set background color.
     setObjectName("VideoListWidgets");
     setStyleSheet("#VideoListWidgets{background:rgb(43,45,51)}");
-    // Init video play list.
+    // Initialize video play list.
     m_playList = new VideoList(this);
 
+    initData();
     initLayout();
     initConnection();
+}
+
+void VideoListWidgets::initData()
+{
+    m_refreshSuffixList.append("mp4");
+    m_refreshSuffixList.append("avi");
+    m_refreshSuffixList.append("rm");
+    m_refreshSuffixList.append("rmvb");
+    m_refreshSuffixList.append("wmv");
+    m_refreshSuffixList.append("mkv");
+    m_refreshSuffixList.append("asf");
+    m_refreshSuffixList.append("mov");
+    m_refreshSuffixList.append("ts");
+    m_refreshSuffixList.append("mpg");
 }
 
 void VideoListWidgets::initLayout()
@@ -32,8 +47,6 @@ void VideoListWidgets::initLayout()
      * and the 'list' include net list and local list.
      */
     m_listHeader = new ListHeader(this);
-    m_listHeader->setVisible(false);
-    m_listHeader->setFixedHeight(100);
 
     m_stackedWid = new QStackedWidget(this);
     m_localTable = new VideoLocalListTable(m_stackedWid);
@@ -44,7 +57,7 @@ void VideoListWidgets::initLayout()
 
     vmianlyout->addWidget(m_listHeader);
     vmianlyout->addWidget(m_stackedWid);
-    vmianlyout->setContentsMargins(40,0,40,0);
+    vmianlyout->setContentsMargins(10,0,10,0);
 
     setLayout(vmianlyout);
 }
@@ -54,6 +67,11 @@ void VideoListWidgets::initConnection()
     connect(m_listHeader,SIGNAL(buttonLocalClick()),this,SLOT(slot_switchToLocalList()));
     connect(m_listHeader,SIGNAL(buttonNetClick()),this,SLOT(slot_switchToNetList()));
     //connect(m_localTable,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(sig_localTableItemDoubleClick(int,int)));
+}
+
+void VideoListWidgets::addRefreshSuffix(QString suffix)
+{
+    m_refreshSuffixList.append(suffix);
 }
 
 void VideoListWidgets::setOriginState()
@@ -87,11 +105,10 @@ QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
         }
         else
         {
-            if (info.suffix() == "mp4" || info.suffix() == "avi" || info.suffix() == "rm"
-                    ||info.suffix() == "rmvb" || info.suffix() == "wmv" || info.suffix() == "mkv"
-                    ||info.suffix() == "mov" || info.suffix() == "asf")
-            {
-                videoFiles.append(info);
+            for(int i=0;i<m_refreshSuffixList.count();i++){
+                if(info.suffix().compare(m_refreshSuffixList.at(i),Qt::CaseInsensitive) == 0){
+                    videoFiles.append(info);
+                }
             }
         }
     }
@@ -188,8 +205,4 @@ void VideoListWidgets::addVideo()
 
 VideoListWidgets::~VideoListWidgets()
 {
-    delete m_listHeader;
-    delete m_stackedWid;
-    delete m_localTable;
-    delete m_netTable;
 }

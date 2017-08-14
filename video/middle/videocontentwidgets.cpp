@@ -5,13 +5,14 @@
 #include "global_value.h"
 
 VideoContentWidgets::VideoContentWidgets(QWidget *parent):BaseWidget(parent)
+  ,m_currentSizeState(NormalSize)
 {
     // Set background color.
     setObjectName("VideoContentWidgets");
     setStyleSheet("#VideoContentWidgets{background:rgb(10,10,10)}");
 
     initLayout();
-    // Init connection of slider moving.
+    // Initialize connection of slider moving.
     connect(m_positionWid->m_slider,SIGNAL(sig_sliderPositionChanged(int)),this,SIGNAL(sig_sliderPositionChanged(int)));
 }
 
@@ -59,25 +60,31 @@ void VideoContentWidgets::removePositionWidget()
 
 void VideoContentWidgets::onDurationChanged(qint64 duration)
 {
-    m_positionWid->m_slider->setRange(0, duration);
-    QTime totalTime((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-                    (duration % (1000 * 60 * 60)) / (1000 * 60),
-                    (duration % (1000 * 60)) / 1000);
-    m_positionWid->m_totalTime->setText(totalTime.toString("hh:mm:ss"));
+    addPositionWidget();
+    m_positionWid->onDurationChanged(duration);
+    m_positionWid->setVisible(m_currentSizeState!=FullScreenSize);
 }
 
 void VideoContentWidgets::onMediaPositionChanged(qint64 position)
 {
-    m_positionWid->m_slider->setValue(position);
-    QTime currentTime((position % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-                      (position % (1000 * 60 * 60)) / (1000 * 60),
-                      (position % (1000 * 60)) / 1000);
-    m_positionWid->m_currentTime->setText(currentTime.toString("hh:mm:ss"));
+    m_positionWid->onMediaPositionChanged(position);
+    m_positionWid->setVisible(m_currentSizeState!=FullScreenSize);
+}
+
+void VideoContentWidgets::fullScreenStyle()
+{
+    m_surfaceWid->setFullScreen(true);
+    m_positionWid->setVisible(false);
+    m_currentSizeState = FullScreenSize;
+}
+
+void VideoContentWidgets::normalSizeStyle()
+{
+    m_surfaceWid->setFullScreen(false);
+    m_positionWid->setVisible(true);
+    m_currentSizeState = NormalSize;
 }
 
 VideoContentWidgets::~VideoContentWidgets()
 {
-    delete m_layout;
-    delete m_surfaceWid;
-    delete m_positionWid;
 }

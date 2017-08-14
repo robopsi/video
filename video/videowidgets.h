@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMediaPlayer>
 #include <QVideoWidget>
+#include <QStackedLayout>
 
 #include "basepushbutton.h"
 #include "basewidget.h"
@@ -11,6 +12,7 @@
 #include "middle/videomiddlewidgets.h"
 #include "bottom/videobottomwidgets.h"
 #include "middle/videocontentwidget.h"
+#include "fullscreencontrolwidgets.h"
 
 /**
  * The main layout of video widgets.It is made up of 3 positional widgets.
@@ -35,8 +37,16 @@ public:
     VideoBottomWidgets *m_bottomWid;
     VideoTopWidgets *m_topWid;
 private:
+    // Save normal size of each moudle.
+    int top_normal_height;
+    int bottom_normal_height;
+    int middle_list_width;
+
     QMediaPlayer *m_player;
     QUrl m_onPlayUrl;
+
+    QStackedLayout *m_stackedLayout;
+    FullScreenControlWidgets *m_fullScreenContrlWid;
 
     void initLayout();
     void initPlayerAndConnection();
@@ -61,15 +71,15 @@ private slots:
 
     void slot_onLocalListItemDoubleClick(int,int);
     void slot_setPlayPause();
-    void slot_nextVideo();
+    void slot_nextVideo(bool isEndofMedia = false);
     void slot_lastVideo();
     void slot_addVideo();
     void slot_volumeChanged(int);
     void slot_returnClick();
+    void slot_refreshMediaResource();
+    void slot_fullScreenStyle();
+    void slot_normalSizeStyle();
 
-    void slot_onContentDoubleClick();
-
-    void slot_denyPlay();
     void slot_onErrorOn(QMediaPlayer::Error);
 };
 

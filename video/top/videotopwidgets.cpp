@@ -83,10 +83,4 @@ void VideoTopWidgets::initLayout()
 
 VideoTopWidgets::~VideoTopWidgets()
 {
-    delete m_btnreturn;
-    delete m_btnicon;
-    delete m_btnexit;
-    delete m_btnmobile;
-    delete m_btnmini;
-    delete m_btnsetting;
 }

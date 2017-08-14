@@ -10,8 +10,13 @@ int video_playButton_size = 50;
 int openFile_size = 30;
 #endif
 
-VideoBottomWidgets::VideoBottomWidgets(QWidget *parent):BaseWidget(parent)
+VideoBottomWidgets::VideoBottomWidgets(QWidget *parent,bool fullScreenStyle):BaseWidget(parent)
 {
+    isFullScreenStyle = fullScreenStyle;
+    if(isFullScreenStyle){
+        m_parent = (FullScreenControlWidgets*)parent;
+    }
+
     // Set background color and bottom widget height.
     setObjectName("VideoBottomWidgets");
     setStyleSheet("#VideoBottomWidgets{background:rgb(89,92,102)}");
@@ -29,11 +34,15 @@ void VideoBottomWidgets::initLayout()
     m_btnLast = new FlatButton(this);
     m_btnOpenFile = new FlatButton(this);
     m_VolWidget = new VolWidget(this);
+    m_btnChangeSize = new FlatButton(this);
+    m_btnRefresh = new FlatButton(this);
 
     m_btnPlayPause->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnNext->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnLast->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnOpenFile->setFixedSize(video_playButton_size,video_playButton_size);
+    m_btnChangeSize->setFixedSize(video_playButton_size,video_playButton_size);
+    m_btnRefresh->setFixedSize(video_playButton_size,video_playButton_size);
 
     m_btnNext->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_next (1).png);}"
                              "QPushButton::hover{border-image:url(:/image/video/btn_next (2).png);}"
@@ -46,6 +55,8 @@ void VideoBottomWidgets::initLayout()
                                   "QPushButton::pressed{border-image:url(:/image/video/btn_play (3).png);}");
 
     m_btnOpenFile->setStyleSheet("QPushButton{border-image:url(:/image/video/video_open_file.png);}");
+    m_btnChangeSize->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_fullscreen.png);}");
+    m_btnRefresh->setStyleSheet("QPushButton{border-image:url(:/image/video/video_refresh.png);}");
 
     QHBoxLayout *hlyout1 = new QHBoxLayout;
     hlyout1->addSpacing(80);
@@ -61,10 +72,24 @@ void VideoBottomWidgets::initLayout()
     hlyout2->addSpacing(20);
     hlyout2->addWidget(m_btnNext);
 
+    QHBoxLayout *hlyout3 = new QHBoxLayout;
+    hlyout3->addStretch(0);
+    hlyout3->addWidget(m_btnChangeSize);
+    hlyout3->addSpacing(30);
+    hlyout3->addWidget(m_btnRefresh);
+    hlyout3->addStretch(0);
+
     hmainlyout->addLayout(hlyout1,1);
     hmainlyout->addLayout(hlyout2,1);
-    hmainlyout->addStretch(1);
+    hmainlyout->addLayout(hlyout3,1);
     hmainlyout->setContentsMargins(0,0,0,0);
+    hmainlyout->setSpacing(0);
+
+    if(isFullScreenStyle){
+        m_btnChangeSize->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_normalSize.png);}");
+        m_btnOpenFile->setVisible(false);
+        m_btnRefresh->setVisible(false);
+    }
 
     setLayout(hmainlyout);
 }
@@ -84,11 +109,13 @@ void VideoBottomWidgets::setPauseStyle()
                                   "QPushButton::pressed{border-image:url(:/image/video/btn_play (3).png);}");
 }
 
+void VideoBottomWidgets::mousePressEvent(QMouseEvent *)
+{
+    if(isFullScreenStyle){
+        m_parent->slot_showControlView();
+    }
+}
+
 VideoBottomWidgets::~VideoBottomWidgets()
 {
-    delete m_btnOpenFile;
-    delete m_btnPlayPause;
-    delete m_btnNext;
-    delete m_btnLast;
-    delete m_VolWidget;
 }

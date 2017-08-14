@@ -6,7 +6,7 @@
 #include "global_value.h"
 
 #ifdef DEVICE_EVB
-int video_item_height = 90;
+int video_item_height = 55;
 #else
 int video_item_height = 35;
 #endif
@@ -62,21 +62,10 @@ void VideoLocalListTable::init()
     insertColumn(0);
     insertColumn(1);
 
-    QHeaderView *horizontalHeader =  this->horizontalHeader();
-    horizontalHeader->setVisible(true);
-    horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-    QFont headerFont = horizontalHeader->font();
-    headerFont.setPixelSize(font_size_big);
-    horizontalHeader->setFont(headerFont);
-    horizontalHeader->setHighlightSections(false);
-    horizontalHeader->setStyleSheet("QHeaderView::section{background-color:rgba(150,150,150,0)}");
-
+    horizontalHeader()->setVisible(false);
     verticalHeader()->setVisible(false);
     verticalHeader()->setDefaultSectionSize(video_item_height);
 
-    QStringList header;
-    header<<tr("Video Play List")<<tr(" ");
-    setHorizontalHeaderLabels(header);
 
     verticalScrollBar()->setStyleSheet("QScrollBar{background:transparent; width: 10px;margin: 0px 2px 0px 0px;}"
                                        "QScrollBar::handle{background:rgb(217,217,217);border-radius:4px;}"

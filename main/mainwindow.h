@@ -33,10 +33,10 @@ private:
 
 public slots:
     void slot_appQuit();
+    void slot_updateMedia();
 private slots:
     // Slot in order to update media resource.
     void slot_setUpdateFlag();
-    void slot_updateMedia();
     void slot_updateUiByRes(QFileInfoList videoFileList);
 
     void slot_standby();

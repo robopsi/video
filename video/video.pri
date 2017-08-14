@@ -11,9 +11,11 @@ INCLUDEPATH +=$$PWD player
 include(player/player.pri)
 
 HEADERS += \
-    $$PWD/videowidgets.h
+    $$PWD/videowidgets.h \
+    $$PWD/fullscreencontrolwidgets.h
 
 SOURCES += \
-    $$PWD/videowidgets.cpp
+    $$PWD/videowidgets.cpp \
+    $$PWD/fullscreencontrolwidgets.cpp
 
 

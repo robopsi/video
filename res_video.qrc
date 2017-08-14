@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>image/video/video_icon.png</file>
-        <file>image/video/video_last.png</file>
-        <file>image/video/video_next.png</file>
-        <file>image/video/video_pause.png</file>
-        <file>image/video/video_play.png</file>
         <file>image/video/video_open_file.png</file>
         <file>image/video/btn_next (1).png</file>
         <file>image/video/btn_next (2).png</file>
@@ -24,5 +20,8 @@
         <file>image/video/btn_previous (4).png</file>
         <file>image/video/menu_vol (2).png</file>
         <file>image/video/menu_vol.png</file>
+        <file>image/video/btn_fullscreen.png</file>
+        <file>image/video/video_refresh.png</file>
+        <file>image/video/btn_normalSize.png</file>
     </qresource>
 </RCC>

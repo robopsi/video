@@ -43,6 +43,8 @@ void BaseWindow::mousePressEvent(QMouseEvent *event)
     QWidget::mousePressEvent(event);
 }
 
+
+
 void BaseWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     m_drag = false;

@@ -31,6 +31,7 @@ public:
     void updatePlayingItemStyle(QMediaContent);
     void addVideo();
     void setOriginState();
+    void addRefreshSuffix(QString suffix);
 
     VideoLocalListTable *m_localTable;
 private:
@@ -42,7 +43,10 @@ private:
     QString m_curPlayingDuration;
     QString m_curPlayingVideoName;
     VideoList *m_playList;
+    // List of search suffix when refresh video resource.
+    QList<QString> m_refreshSuffixList;
 
+    void initData();
     void initLayout();
     void initConnection();
     void insertIntoLocalTable(int row,QString videoName,QString duration);

@@ -3,7 +3,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :BaseWindow(parent),mediaHasUpdate(false)
 {
-    // Init global main class of 'MainWindow' for other widgets invokes.
+    // Initialize global main class of 'MainWindow' for other widgets invokes.
     mainWindow = this;
 
     initLayout();
@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent) :BaseWindow(parent),mediaHasUpdate(false
 
 MainWindow::~MainWindow()
 {
-    delete m_videoWid;
 }
 
 void MainWindow::initLayout(){
@@ -28,7 +27,7 @@ void MainWindow::initConnection()
 {
     connect(m_videoWid->m_topWid->m_btnmini,SIGNAL(clicked(bool)),this,SLOT(showMinimized()));
     connect(m_videoWid->m_topWid->m_btnexit,SIGNAL(clicked(bool)),this,SLOT(slot_appQuit()));
-//    connect(m_videoWid->m_topWid->m_btnreturn,SIGNAL(clicked(bool)),this,SLOT(slot_appQuit()));
+    //    connect(m_videoWid->m_topWid->m_btnreturn,SIGNAL(clicked(bool)),this,SLOT(slot_appQuit()));
 
     // Update media resource when receive signals from 'uevent' or 'inotify'.
     connect(this,SIGNAL(beginUpdateMediaResource()),this,SLOT(slot_setUpdateFlag()));
@@ -54,7 +53,7 @@ void MainWindow::slot_updateMedia()
     qDebug()<<"Carmachine: Update media resource.";
     mediaUpdateThread *thread = new mediaUpdateThread(this,this);
     thread->start();
-    mediaHasUpdate =false;
+    mediaHasUpdate = false;
 }
 
 void MainWindow::slot_updateUiByRes(QFileInfoList videoFileList)

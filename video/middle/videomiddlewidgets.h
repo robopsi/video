@@ -21,19 +21,10 @@ public:
     VideoMiddleWidgets(QWidget *parent =0);
     ~VideoMiddleWidgets();
 
-    bool isCurrentPlayMode(){return isOnPlayMode;}
-
     VideoListWidgets *m_listWid;
     VideoContentWidgets *m_contentWid;
 private:
-    // Flag that stands for whether current mode in play mode.
-    bool isOnPlayMode;
-
-    QStackedWidget *m_stackWid;
 
     void initLayout();
-public slots:
-    void slot_playMode();
-    void slot_listMode();
 };
 #endif // VIDEOMIDDLEWIDGETS_H

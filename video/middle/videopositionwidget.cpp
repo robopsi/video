@@ -1,5 +1,7 @@
 #include "videopositionwidget.h"
 #include <QHBoxLayout>
+#include <QTime>
+
 #include "global_value.h"
 
 #ifdef DEVICE_EVB
@@ -8,11 +10,16 @@ int video_position_height = 60;
 int video_position_height = 35;
 #endif
 
-VideoPositionWidget::VideoPositionWidget(QWidget *parent):BaseWidget(parent)
+VideoPositionWidget::VideoPositionWidget(QWidget *parent,bool fullScreenStyle):BaseWidget(parent)
 {
+    isFullScreenStyle = fullScreenStyle;
+    if(isFullScreenStyle){
+        m_parent = (FullScreenControlWidgets*)parent;
+    }
+
     // Set background color.
     setFixedHeight(video_position_height);
-    setStyleSheet("background:rgb(31,31,31)");
+    setStyleSheet("background:rgba(31,31,31)");
 
     initWidget();
 }
@@ -50,6 +57,24 @@ void VideoPositionWidget::initWidget()
     setLayout(mainlyout);
 }
 
+void VideoPositionWidget::onDurationChanged(qint64 duration)
+{
+    m_slider->setRange(0, duration);
+    QTime totalTime((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+                    (duration % (1000 * 60 * 60)) / (1000 * 60),
+                    (duration % (1000 * 60)) / 1000);
+    m_totalTime->setText(totalTime.toString("hh:mm:ss"));
+}
+
+void VideoPositionWidget::onMediaPositionChanged(qint64 position)
+{
+    m_slider->setValue(position);
+    QTime currentTime((position % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+                      (position % (1000 * 60 * 60)) / (1000 * 60),
+                      (position % (1000 * 60)) / 1000);
+    m_currentTime->setText(currentTime.toString("hh:mm:ss"));
+}
+
 void VideoPositionWidget::mousePressEvent(QMouseEvent *event)
 {
     if(m_slider->x() < event->x() && event->x() < (m_slider->x()+m_slider->width())){
@@ -60,11 +85,9 @@ void VideoPositionWidget::mousePressEvent(QMouseEvent *event)
             emit m_slider->sig_sliderPositionChanged(pos);
         }
     }
+    m_parent->slot_showControlView();
 }
 
 VideoPositionWidget::~VideoPositionWidget()
 {
-    delete m_slider;
-    delete m_currentTime;
-    delete m_totalTime;
 }
