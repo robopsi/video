@@ -266,6 +266,7 @@ void VideoWidgets::slot_changePlayMode()
     VideoList *playList = m_middleWid->m_listWid->getVideoList();
     playList->changePlayMode();
     m_bottomWid->updatePlayModeIcon(playList->getCurrentPlayMode());
+    m_fullScreenContrlWid->getControlWidget()->updatePlayModeIcon(playList->getCurrentPlayMode());
 }
 
 void VideoWidgets::slot_refreshMediaResource()

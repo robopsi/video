@@ -3,7 +3,7 @@
 #ifdef DEVICE_EVB
 int video_bottom_height  = 160;
 int video_playButton_size = 100;
-int playMode_size = 80;
+int playMode_size = 60;
 #else
 int video_bottom_height  = 70;
 int video_playButton_size = 50;
