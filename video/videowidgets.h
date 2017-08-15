@@ -79,6 +79,7 @@ private slots:
     void slot_refreshMediaResource();
     void slot_fullScreenStyle();
     void slot_normalSizeStyle();
+    void slot_changePlayMode();
 
     void slot_onErrorOn(QMediaPlayer::Error);
 };

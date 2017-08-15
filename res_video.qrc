@@ -23,5 +23,8 @@
         <file>image/video/btn_fullscreen.png</file>
         <file>image/video/video_refresh.png</file>
         <file>image/video/btn_normalSize.png</file>
+        <file>image/video/btn_list.png</file>
+        <file>image/video/btn_random.png</file>
+        <file>image/video/btn_single.png</file>
     </qresource>
 </RCC>

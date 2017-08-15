@@ -3,11 +3,11 @@
 #ifdef DEVICE_EVB
 int video_bottom_height  = 160;
 int video_playButton_size = 100;
-int openFile_size = 80;
+int playMode_size = 80;
 #else
 int video_bottom_height  = 70;
 int video_playButton_size = 50;
-int openFile_size = 30;
+int playMode_size = 30;
 #endif
 
 VideoBottomWidgets::VideoBottomWidgets(QWidget *parent,bool fullScreenStyle):BaseWidget(parent)
@@ -36,6 +36,7 @@ void VideoBottomWidgets::initLayout()
     m_VolWidget = new VolWidget(this);
     m_btnChangeSize = new FlatButton(this);
     m_btnRefresh = new FlatButton(this);
+    m_btnPlayMode = new FlatButton(this);
 
     m_btnPlayPause->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnNext->setFixedSize(video_playButton_size,video_playButton_size);
@@ -43,6 +44,7 @@ void VideoBottomWidgets::initLayout()
     m_btnOpenFile->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnChangeSize->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnRefresh->setFixedSize(video_playButton_size,video_playButton_size);
+    m_btnPlayMode->setFixedSize(playMode_size,playMode_size);
 
     m_btnNext->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_next (1).png);}"
                              "QPushButton::hover{border-image:url(:/image/video/btn_next (2).png);}"
@@ -57,6 +59,7 @@ void VideoBottomWidgets::initLayout()
     m_btnOpenFile->setStyleSheet("QPushButton{border-image:url(:/image/video/video_open_file.png);}");
     m_btnChangeSize->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_fullscreen.png);}");
     m_btnRefresh->setStyleSheet("QPushButton{border-image:url(:/image/video/video_refresh.png);}");
+    m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}");
 
     QHBoxLayout *hlyout1 = new QHBoxLayout;
     hlyout1->addSpacing(80);
@@ -72,8 +75,11 @@ void VideoBottomWidgets::initLayout()
     hlyout2->addSpacing(20);
     hlyout2->addWidget(m_btnNext);
 
+
     QHBoxLayout *hlyout3 = new QHBoxLayout;
     hlyout3->addStretch(0);
+    hlyout3->addWidget(m_btnPlayMode);
+    hlyout3->addSpacing(30);
     hlyout3->addWidget(m_btnChangeSize);
     hlyout3->addSpacing(30);
     hlyout3->addWidget(m_btnRefresh);
@@ -90,6 +96,7 @@ void VideoBottomWidgets::initLayout()
         m_btnOpenFile->setVisible(false);
         m_btnRefresh->setVisible(false);
     }
+
 
     setLayout(hmainlyout);
 }
@@ -109,9 +116,24 @@ void VideoBottomWidgets::setPauseStyle()
                                   "QPushButton::pressed{border-image:url(:/image/video/btn_play (3).png);}");
 }
 
+void VideoBottomWidgets::updatePlayModeIcon(VideoList::PlayMode playMode)
+{
+    switch(playMode){
+    case VideoList::PlayRandom:
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_random.png);}");
+        break;
+    case VideoList::PlayOneCircle:
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_single.png);}");
+        break;
+    case VideoList::PlayInOrder:
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}");
+        break;
+    }
+}
+
 void VideoBottomWidgets::mousePressEvent(QMouseEvent *)
 {
-    if(isFullScreenStyle){
+    if(isFullScreenStyle&&m_parent!=NULL){
         m_parent->slot_showControlView();
     }
 }

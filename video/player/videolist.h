@@ -16,6 +16,12 @@ class VideoList:public QObject
 public:
     VideoList(QObject *parent = 0);
 
+    enum PlayMode{
+        PlayInOrder,
+        PlayRandom,
+        PlayOneCircle
+    };
+
     QUrl getUrlAt(int index);
     QUrl getNextVideoUrl();
     QUrl getPreVideoUrl();
@@ -23,11 +29,16 @@ public:
 
     QList<QUrl> getUrlList(){return m_list;}
     inline void addToPlayList(const QString& path){m_list.append(QUrl::fromLocalFile(path));}
+
+    void changePlayMode();
+    PlayMode getCurrentPlayMode(){return m_currentPlayMode;}
 private:
     // Current play list.
     QList<QUrl> m_list;
     // Current play index.
     int m_currentIndex;
+
+    PlayMode m_currentPlayMode;
 };
 
 #endif // VIDEOLIST_H
