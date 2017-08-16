@@ -4,10 +4,6 @@
 
 BaseWidget::BaseWidget(QWidget *parent) : QWidget(parent)
 {
-#ifndef DEVICE_EVB
-    setWindowFlags(Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_TranslucentBackground, true);
-#endif
     setMouseTracking(true);
 }
 

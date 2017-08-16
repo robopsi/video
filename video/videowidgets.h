@@ -80,6 +80,8 @@ private slots:
     void slot_fullScreenStyle();
     void slot_normalSizeStyle();
     void slot_changePlayMode();
+    void slot_fastForward();
+    void slot_fastBackward();
 
     void slot_onErrorOn(QMediaPlayer::Error);
 };

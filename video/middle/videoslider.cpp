@@ -19,12 +19,25 @@ VideoSlider::VideoSlider(Qt::Orientation orientation,QWidget*parent):QSlider(ori
 
 void VideoSlider::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)	{
-        int dur = maximum() - minimum();
-        int pos = minimum() + dur * ((double)event->x() / width());
-        if(pos != sliderPosition()){
-            setValue(pos);
-            emit sig_sliderPositionChanged(pos);
-        }
+    QSlider::mousePressEvent(event);
+    // Position '-1' stands for update state.
+    emit sig_sliderPositionChanged(-1);
+}
+
+void VideoSlider::mouseMoveEvent(QMouseEvent *event)
+{
+    QSlider::mouseMoveEvent(event);
+    // Position '-1' stands for update state.
+    emit sig_sliderPositionChanged(-1);
+}
+
+void VideoSlider::mouseReleaseEvent(QMouseEvent *event)
+{
+    QSlider::mouseReleaseEvent(event);
+    int dur = maximum() - minimum();
+    int pos = minimum() + dur * ((double)event->x() / width());
+    if(pos != sliderPosition()){
+        setValue(pos);
+        emit sig_sliderPositionChanged(pos);
     }
 }

@@ -93,7 +93,9 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_middleWid->m_listWid->m_localTable,SIGNAL(cellClicked(int,int)),this,SLOT(slot_onLocalListItemDoubleClick(int,int)));
     connect(m_bottomWid->m_btnPlayPause,SIGNAL(clicked(bool)),this,SLOT(slot_setPlayPause()));
     connect(m_bottomWid->m_btnNext,SIGNAL(clicked(bool)),this,SLOT(slot_nextVideo()));
+    connect(m_bottomWid->m_btnNext,SIGNAL(longPressedEvent()),this,SLOT(slot_fastForward()));
     connect(m_bottomWid->m_btnLast,SIGNAL(clicked(bool)),this,SLOT(slot_lastVideo()));
+    connect(m_bottomWid->m_btnLast,SIGNAL(longPressedEvent()),this,SLOT(slot_fastBackward()));
     connect(m_bottomWid->m_btnOpenFile,SIGNAL(clicked(bool)),this,SLOT(slot_addVideo()));
     connect(m_bottomWid->m_VolWidget,SIGNAL(sig_valueChanged(int)),this,SLOT(slot_volumeChanged(int)));
     connect(m_bottomWid->m_btnChangeSize,SIGNAL(clicked(bool)),this,SLOT(slot_fullScreenStyle()));
@@ -110,6 +112,8 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_fullScreenContrlWid->getControlWidget()->m_btnPlayPause,SIGNAL(clicked(bool)),this,SLOT(slot_setPlayPause()));
     connect(m_fullScreenContrlWid->getControlWidget()->m_btnNext,SIGNAL(clicked(bool)),this,SLOT(slot_nextVideo()));
     connect(m_fullScreenContrlWid->getControlWidget()->m_btnLast,SIGNAL(clicked(bool)),this,SLOT(slot_lastVideo()));
+    connect(m_fullScreenContrlWid->getControlWidget()->m_btnNext,SIGNAL(longPressedEvent()),this,SLOT(slot_fastForward()));
+    connect(m_fullScreenContrlWid->getControlWidget()->m_btnLast,SIGNAL(longPressedEvent()),this,SLOT(slot_fastBackward()));
     connect(m_fullScreenContrlWid->getControlWidget()->m_VolWidget,SIGNAL(sig_valueChanged(int)),this,SLOT(slot_volumeChanged(int)));
     connect(m_fullScreenContrlWid->getControlWidget()->m_btnChangeSize,SIGNAL(clicked(bool)),this,SLOT(slot_normalSizeStyle()));
 
@@ -215,6 +219,29 @@ void VideoWidgets::slot_lastVideo()
     }
 }
 
+void VideoWidgets::slot_fastForward()
+{
+    if(m_player->state()==QMediaPlayer::PlayingState||
+            m_player->state()==QMediaPlayer::PausedState){
+        m_player->setPosition(m_player->position()+5000);
+    }
+    if(m_middleWid->m_contentWid->getCurrentSizeState() == VideoContentWidgets::FullScreenSize){
+        m_fullScreenContrlWid->slot_showControlView();
+    }
+}
+
+void VideoWidgets::slot_fastBackward()
+{
+    qDebug("slot_fastBackward");
+    if(m_player->state()==QMediaPlayer::PlayingState||
+            m_player->state()==QMediaPlayer::PausedState){
+        m_player->setPosition(m_player->position()-5000);
+    }
+    if(m_middleWid->m_contentWid->getCurrentSizeState() == VideoContentWidgets::FullScreenSize){
+        m_fullScreenContrlWid->slot_showControlView();
+    }
+}
+
 void VideoWidgets::slot_fullScreenStyle()
 {
     if(m_player->state()==QMediaPlayer::PlayingState||m_player->state()==QMediaPlayer::PausedState){
@@ -250,7 +277,7 @@ void VideoWidgets::slot_normalSizeStyle()
         m_middleWid->m_listWid->setFixedWidth(middle_list_width);
 
         m_middleWid->m_contentWid->normalSizeStyle();
-         // Update playMode icon by 'videoList'
+        // Update playMode icon by 'videoList'
         m_bottomWid->updatePlayModeIcon(m_middleWid->m_listWid->getVideoList()->getCurrentPlayMode());
         m_stackedLayout->setCurrentIndex(0);
     }
@@ -299,7 +326,12 @@ void VideoWidgets::slot_onMediaPositionChanged(qint64 position)
 
 void VideoWidgets::slot_onSliderPositionChanged(int position)
 {
-    m_player->setPosition(position);
+    if(position >= 0){
+        m_player->setPosition(position);
+        if(m_middleWid->m_contentWid->getCurrentSizeState() == VideoContentWidgets::FullScreenSize){
+            m_fullScreenContrlWid->slot_showControlView();
+        }
+    }
     if(m_middleWid->m_contentWid->getCurrentSizeState() == VideoContentWidgets::FullScreenSize){
         m_fullScreenContrlWid->slot_showControlView();
     }

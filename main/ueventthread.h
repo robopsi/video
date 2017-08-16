@@ -3,10 +3,10 @@
 
 #include <QThread>
 
-class ueventThread:public QThread
+class UeventThread:public QThread
 {
 public:
-    ueventThread(QObject *parent=0);
+    UeventThread(QObject *parent=0);
 protected:
     void run();
 };

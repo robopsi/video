@@ -11,9 +11,9 @@ int main(int argc, char *argv[])
 
     // Start media source update thread.
     // Uevent for usb and inotify for file modify.
-    ueventThread thread;
+    UeventThread thread;
     thread.start();
-    inotifyThread thread2;
+    InotifyThread thread2;
     thread2.start();
 
     app.setStyleSheet(/*"QLabel{color:white;}"*/

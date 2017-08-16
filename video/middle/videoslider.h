@@ -15,7 +15,8 @@ public:
     VideoSlider(Qt::Orientation orientation,QWidget *parent);
 protected:
     void mousePressEvent(QMouseEvent*);
-
+    void mouseReleaseEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev);
 signals:
     void sig_sliderPositionChanged(int);
 };

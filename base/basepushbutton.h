@@ -15,8 +15,22 @@ class FlatButton : public QPushButton
 {
     Q_OBJECT
 public:
-    FlatButton(QWidget*parent=0);
+    FlatButton(QWidget *parent=0);
     FlatButton(const QString& str,QWidget*parent=0);
+
+    bool isLongPressed(){return longPressedFlag;}
+private:
+    // It stands for the button current is be long pressed.
+    bool longPressedFlag;
+    // Used for identify long press event.
+    QTimer *m_timer;
+private slots:
+    void slot_timerTimeout();
+protected:
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+signals:
+    void longPressedEvent();
 };
 
 class GuideButton : public QPushButton

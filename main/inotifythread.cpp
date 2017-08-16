@@ -6,47 +6,57 @@
 #include <sys/inotify.h>
 #include <unistd.h>
 #include <QDirIterator>
-#include <QTextCodec>
+
+#include "global_value.h"
 
 #define EVENT_NUM 12
-#include "global_value.h"
 
 char *event_str[EVENT_NUM] =
 {
-    "IN_ACCESS",
-    "IN_MODIFY",
-    "IN_ATTRIB",
-    "IN_CLOSE_WRITE",
-    "IN_CLOSE_NOWRITE",
-    "IN_OPEN",
-    "IN_MOVED_FROM",
-    "IN_MOVED_TO",
-    "IN_CREATE",
-    "IN_DELETE",
-    "IN_DELETE_SELF",
-    "IN_MOVE_SELF"
+    (char*)"IN_ACCESS",
+    (char*)"IN_MODIFY",
+    (char*)"IN_ATTRIB",
+    (char*)"IN_CLOSE_WRITE",
+    (char*)"IN_CLOSE_NOWRITE",
+    (char*)"IN_OPEN",
+    (char*)"IN_MOVED_FROM",
+    (char*)"IN_MOVED_TO",
+    (char*)"IN_CREATE",
+    (char*)"IN_DELETE",
+    (char*)"IN_DELETE_SELF",
+    (char*)"IN_MOVE_SELF"
 };
 
-inotifyThread::inotifyThread(QObject *parent):QThread(parent)
+InotifyThread::InotifyThread(QObject *parent):QThread(parent)
 {
 
 }
-QString _FromSpecialEncoding(const QString &InputStr)
+
+QList<QString> getAllDirPath(const QString& path)
 {
-    QTextCodec *codec = QTextCodec::codecForName("CP936");
-    if (codec)
-    {
-        return codec->toUnicode(InputStr.toLatin1());
+    QList<QString> dirPathList;
+    QFileInfo pathInfo(path);
+    if(pathInfo.isDir()){
+        dirPathList.append(pathInfo.absoluteFilePath());
     }
-    else
-    {
-        return QString("");
+
+    QDirIterator it(path,QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
+    while (it.hasNext()){
+        QString name = it.next();
+        QFileInfo info(name);
+        if (info.isDir()){
+            if(!dirPathList.contains(info.absoluteFilePath())){
+                dirPathList.append(info.absoluteFilePath());
+                dirPathList.append(getAllDirPath(name));
+            }
+        }
     }
+    return dirPathList;
 }
-void inotifyThread::run()
+
+void InotifyThread::run()
 {
     int fd;
-    int wd;
     int len;
     int nread;
     char buf[BUFSIZ];
@@ -54,47 +64,31 @@ void inotifyThread::run()
     int i;
 
     fd = inotify_init();
-    if( fd < 0 )
-    {
+    if( fd < 0 ){
         fprintf(stderr, "inotify_init failed\n");
         return;
     }
 
-    printf("VIDEO_SEARCH_PATH:%s",VIDEO_SEARCH_PATH.toLatin1().data());
-    QDirIterator it(VIDEO_SEARCH_PATH,QDir::Dirs);
-    while (it.hasNext())
-    {
-        QString name =it.next();
-
-        QFileInfo info(name);
-        if (info.isDir())
-        {
-            printf("%s",info.absolutePath().toLatin1().data());
-            inotify_add_watch(fd, info.absolutePath().toLatin1().data(),
-                                       IN_CREATE | IN_DELETE | IN_DELETE_SELF);
-
-        }
+    QList<QString> pathList = getAllDirPath(VIDEO_SEARCH_PATH);
+    for(int i=0;i<pathList.size();i++){
+        qDebug("Add inotify path: %s",pathList.at(i).toLatin1().data());
+        inotify_add_watch(fd, pathList.at(i).toLatin1().data(),
+                          IN_CREATE | IN_DELETE | IN_DELETE_SELF);
     }
 
-    wd = inotify_add_watch(fd, VIDEO_SEARCH_PATH.toLatin1().data(),
-                           IN_CREATE | IN_DELETE | IN_DELETE_SELF );
+    inotify_add_watch(fd, VIDEO_SEARCH_PATH.toLatin1().data(),
+                               IN_CREATE | IN_DELETE | IN_DELETE_SELF );
 
     buf[sizeof(buf) - 1] = 0;
-    while( (len = read(fd, buf, sizeof(buf) - 1)) > 0 )
-    {
+    while( (len = read(fd, buf, sizeof(buf) - 1)) > 0 ){
         nread = 0;
-        while( len > 0 )
-        {
+        while( len > 0 ){
             event = (struct inotify_event *)&buf[nread];
-            for(i=0; i<EVENT_NUM; i++)
-            {
-                if((event->mask >> i) & 1)
-                {
-                    if(event->len > 0)
-                    {
+            for(i=0; i<EVENT_NUM; i++){
+                if((event->mask >> i) & 1){
+                    if(event->len > 0){
                         fprintf(stdout, "%s --- %s\n", event->name, event_str[i]);
-                        if(mainWindow!=NULL)
-                        {
+                        if(mainWindow!=NULL){
                             emit mainWindow->beginUpdateMediaResource();
                         }
                     }

@@ -1,10 +1,40 @@
 #include "basepushbutton.h"
 
-FlatButton::FlatButton(QWidget*parent):QPushButton(parent)
+FlatButton::FlatButton(QWidget *parent):QPushButton(parent)
+  ,longPressedFlag(false)
 {
     setCursor(Qt::PointingHandCursor);
     setFlat(true);
     setStyleSheet("QPushButton{background:transparent;}");
+
+    m_timer = new QTimer(this);
+    connect(m_timer,SIGNAL(timeout()),this,SLOT(slot_timerTimeout()));
+}
+
+void FlatButton::slot_timerTimeout()
+{
+    m_timer->stop();
+    longPressedFlag = true;
+    // Once longPressedFlag be setted,send signal every 500 milliseconds.
+    m_timer->start(500);
+    emit longPressedEvent();
+}
+
+void FlatButton::mousePressEvent(QMouseEvent *e)
+{
+    QPushButton::mousePressEvent(e);
+    m_timer->start(1000);
+}
+
+void FlatButton::mouseReleaseEvent(QMouseEvent *e)
+{
+    if(longPressedFlag){
+        e->accept();
+    }else{
+        QPushButton::mouseReleaseEvent(e);
+    }
+    m_timer->stop();
+    longPressedFlag = false;
 }
 
 FlatButton::FlatButton(const QString& str, QWidget *parent):QPushButton(str,parent)

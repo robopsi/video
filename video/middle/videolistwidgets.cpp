@@ -36,6 +36,15 @@ void VideoListWidgets::initData()
     m_refreshSuffixList.append("mov");
     m_refreshSuffixList.append("ts");
     m_refreshSuffixList.append("mpg");
+    m_refreshSuffixList.append("mpg");
+    m_refreshSuffixList.append("m2ts");
+    m_refreshSuffixList.append("trp");
+    m_refreshSuffixList.append("flv");
+    m_refreshSuffixList.append("WEBM");
+    m_refreshSuffixList.append("3GP");
+    m_refreshSuffixList.append("Vob");
+    m_refreshSuffixList.append("MPG");
+    m_refreshSuffixList.append("DAT");
 }
 
 void VideoListWidgets::initLayout()

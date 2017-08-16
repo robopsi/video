@@ -20,12 +20,12 @@ struct luther_gliethttp {
 static int open_luther_gliethttp_socket(void);
 static void parse_event(const char *msg, struct luther_gliethttp *luther_gliethttp);
 
-ueventThread::ueventThread(QObject *parent):QThread(parent)
+UeventThread::UeventThread(QObject *parent):QThread(parent)
 {
 
 }
 
-void ueventThread::run()
+void UeventThread::run()
 {
     int device_fd = -1;
     char msg[UEVENT_MSG_LEN+2];
@@ -114,6 +114,7 @@ static void parse_event(const char *msg, struct luther_gliethttp *luther_glietht
                luther_gliethttp->firmware, luther_gliethttp->major, luther_gliethttp->minor);
         if(mainWindow!=NULL)
         {
+            qDebug("uevent====");
             emit mainWindow->beginUpdateMediaResource();
         }
 

@@ -2,11 +2,12 @@
 #define INOTIFYTHREAD_H
 
 #include <QThread>
+#include <QMap>
 
-class inotifyThread:public QThread
+class InotifyThread:public QThread
 {
 public:
-    inotifyThread(QObject *parent=0);
+    InotifyThread(QObject *parent=0);
 protected:
     void run();
 };
