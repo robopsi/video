@@ -7,29 +7,13 @@
 
 #ifdef DEVICE_EVB
 int video_item_height = 55;
+int move_distance_next_step = 300;
 #else
 int video_item_height = 35;
+int move_distance_next_step = 100;
 #endif
 
-QLineDelegate::QLineDelegate(QTableView* tableView)
-{
-    int gridHint = tableView->style()->styleHint(QStyle::SH_Table_GridLineColor, new QStyleOptionViewItemV4());
-    QColor gridColor = static_cast<QRgb>(gridHint);
-    pen = QPen(gridColor, 0, tableView->gridStyle());
-    view = tableView;
-}
-
-void QLineDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,const QModelIndex& index)const
-{
-    QStyledItemDelegate::paint(painter, option, index);
-    QPen oldPen = painter->pen();
-    painter->setPen(pen);
-    //painter->drawLine(option.rect.topRight(), option.rect.bottomRight());
-    painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
-    painter->setPen(oldPen);
-}
-
-VideoLocalListTable::VideoLocalListTable(QWidget *parent):QTableWidget(parent)
+VideoLocalListTable::VideoLocalListTable(QWidget *parent):BaseTableWidget(parent,move_distance_next_step)
 {
     init();
     initConnection();
@@ -44,41 +28,10 @@ void VideoLocalListTable::init()
     listFont.setPixelSize(font_size_big);
     this->setFont(listFont);
 
-    setMouseTracking(true);
-    setFrameShadow(QFrame::Plain);
-    setFrameShape(QFrame::NoFrame);
-    setFocusPolicy(Qt::NoFocus);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Expanding);
-    setShowGrid(false);
-    setItemDelegate(new QLineDelegate(this));
-    setEditTriggers(QTableWidget::NoEditTriggers);
-    setSelectionBehavior (QAbstractItemView::SelectRows);
-    setSelectionMode (QAbstractItemView::SingleSelection);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    setAcceptDrops(true);
-
     insertColumn(0);
     insertColumn(1);
 
-    horizontalHeader()->setVisible(false);
-    verticalHeader()->setVisible(false);
     verticalHeader()->setDefaultSectionSize(video_item_height);
-
-
-    verticalScrollBar()->setStyleSheet("QScrollBar{background:transparent; width: 10px;margin: 0px 2px 0px 0px;}"
-                                       "QScrollBar::handle{background:rgb(217,217,217);border-radius:4px;}"
-                                       "QScrollBar::handle:hover{background: rgb(191,191,191);}"
-                                       "QScrollBar::add-line:vertical{border:1px rgb(230,230,230);height: 1px;}"
-                                       "QScrollBar::sub-line:vertical{border:1px rgb(230,230,230);height: 1px;}"
-                                       "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background:transparent;}");
-
-    setStyleSheet("QTableWidget{background:transparent}"
-                  "QTableWidget{color:rgb(255,255,255);}"
-                  "QTableWidget::item:selected{background:rgb(43,45,51);}"
-                  "QTableWidget::item{selection-color:rgb(26,158,255);}"
-                  );
 }
 
 void VideoLocalListTable::initConnection()
@@ -118,22 +71,15 @@ void VideoLocalListTable::leaveEvent(QEvent *event)
     slot_cellEnter(-1, -1);
 }
 
-void VideoLocalListTable::mouseMoveEvent(QMouseEvent *event)
-{
-    QTableWidget::mouseMoveEvent(event);
-    if(itemAt(mapFromGlobal(QCursor::pos()))==Q_NULLPTR)
-    {
-        slot_cellEnter(-1,-1);
-    }
-}
-
-void VideoLocalListTable::resizeEvent(QResizeEvent *)
+void VideoLocalListTable::resizeEvent(QResizeEvent *event)
 {
 #ifdef DEVICE_EVB
     horizontalHeader()->resizeSection(0,width()-120);
-    horizontalHeader()->resizeSection(1,120);
+    horizontalHeader()->resizeSection(1,118);
 #else
-    horizontalHeader()->resizeSection(0,width()-80);
-    horizontalHeader()->resizeSection(1,80);
+    horizontalHeader()->resizeSection(0,width()-58);
+    horizontalHeader()->resizeSection(1,60);
 #endif
+    QTableWidget::resizeEvent(event);
 }
+

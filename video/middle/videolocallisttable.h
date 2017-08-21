@@ -2,22 +2,9 @@
 #define VIDEOLOCALLISTTABLE_H
 
 #include <QObject>
-#include <QTableWidget>
-#include <QStyledItemDelegate>
-#include <QPen>
+#include "base/basetablewidget.h"
 
-class QLineDelegate : public QStyledItemDelegate
-{
-public:
-    QLineDelegate(QTableView* tableView);
-protected:
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-private:
-    QPen pen;
-    QTableView* view;
-};
-
-class VideoLocalListTable:public QTableWidget
+class VideoLocalListTable:public BaseTableWidget
 {
     Q_OBJECT
 public:
@@ -33,9 +20,7 @@ private:
     int m_playingItemRow;
 protected:
     void leaveEvent(QEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent*);
-
 private slots:
     void slot_cellEnter(int,int);
 };

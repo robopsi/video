@@ -7,8 +7,8 @@
 extern MainWindow *mainWindow;
 
 #ifdef DEVICE_EVB
-const int font_size = 30;
-const int font_size_big = 35;
+const int font_size = 25;
+const int font_size_big = 30;
 // top part
 const QString return_resource_str = ":/image/main/return_big.png";
 const int return_icon_width = 212;

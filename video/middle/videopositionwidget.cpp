@@ -28,6 +28,9 @@ void VideoPositionWidget::initWidget()
 {
     QHBoxLayout *lyout = new QHBoxLayout;
 
+    QFont font = this->font();
+    font.setPixelSize(font_size_big);
+
     m_slider = new VideoSlider(Qt::Horizontal,this);
     m_slider->setRange(0,0);
 
@@ -35,11 +38,13 @@ void VideoPositionWidget::initWidget()
     m_currentTime->setStyleSheet("color:rgb(150,150,150);");
     m_currentTime->setFixedHeight(video_position_height);
     m_currentTime->setAlignment(Qt::AlignVCenter);
+    m_currentTime->setFont(font);
 
     m_totalTime = new QLabel("00:00",this);
     m_totalTime->setStyleSheet("color:rgb(150,150,150);");
     m_totalTime->setFixedHeight(video_position_height);
     m_totalTime->setAlignment(Qt::AlignVCenter);
+    m_currentTime->setFont(font);
 
     lyout->addSpacing(10);
     lyout->addWidget(m_currentTime);

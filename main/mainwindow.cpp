@@ -50,7 +50,7 @@ void MainWindow::slot_setUpdateFlag()
 
 void MainWindow::slot_updateMedia()
 {
-    qDebug()<<"Carmachine: Update media resource.";
+    qDebug()<<"Update media resource.";
     mediaUpdateThread *thread = new mediaUpdateThread(this,this);
     thread->start();
     mediaHasUpdate = false;
