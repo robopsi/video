@@ -1,56 +1,67 @@
 #include "volwidget.h"
+
 #include <QHBoxLayout>
-#include "basepushbutton.h"
+
+#ifdef DEVICE_EVB
+int volume_icon_size = 70;
+int volume_slider_width = 160;
+int volume_slider_height = 20;
+#else
+int volume_icon_size = 40;
+int volume_slider_width = 120;
+int volume_slider_height = 20;
+#endif
 
 VolWidget::VolWidget(QWidget *parent):QWidget(parent)
+  ,isMute(false)
 {
-#ifdef DEVICE_EVB
-    QHBoxLayout *lyout=new QHBoxLayout;
-    m_slider_vol=new mySlider(Qt::Horizontal,this);
-    m_slider_vol->setFixedSize(100,60);
-    m_slider_vol->setStyleSheet("QSlider::groove:horizontal{border-radius:2px;height:10px;}"
-                                "QSlider::sub-page:horizontal{background:rgb(27,157,255);}"
-                                "QSlider::add-page:horizontal{background:rgb(209,209,209);}"
-                                "QSlider::handle:horizontal{background:rgb(255,255,255);width:8px;border-radius:4px;margin:-3px 0px -3px 0px;}");
-    m_slider_vol->setCursor(Qt::PointingHandCursor);
-    VolButton *btn=new VolButton(":/image/video/menu_vol (2).png",this);
-    btn->setParentSlider(m_slider_vol);
-    btn->setFixedSize(70,70);
+    init();
+}
 
-    lyout->addWidget(btn,0,Qt::AlignRight|Qt::AlignVCenter);
-    lyout->addWidget(m_slider_vol,0,Qt::AlignLeft|Qt::AlignVCenter);
-    lyout->setContentsMargins(0,0,0,0);
-    lyout->setSpacing(0);
-    setLayout(lyout);
+void VolWidget::init()
+{
+    QHBoxLayout *layout = new QHBoxLayout;
 
-    connect(m_slider_vol,SIGNAL(valueChanged(int)),btn,SLOT(setButtonPixmap(int)));
-    connect(m_slider_vol,SIGNAL(valueChanged(int)),this,SIGNAL(sig_valueChanged(int)));
-    connect(btn,SIGNAL(setMute(int)),m_slider_vol,SLOT(setValue(int)));
-    m_slider_vol->setValue(80);
-#else
-    QHBoxLayout *lyout=new QHBoxLayout;
-    m_slider_vol=new mySlider(Qt::Horizontal,this);
-    m_slider_vol->setFixedSize(80,50);
-    m_slider_vol->setStyleSheet("QSlider::groove:horizontal{border-radius:2px;height:4px;}"
-                                "QSlider::sub-page:horizontal{background:rgb(27,157,255);}"
-                                "QSlider::add-page:horizontal{background:rgb(209,209,209);}"
-                                "QSlider::handle:horizontal{background:rgb(255,255,255);width:8px;border-radius:4px;margin:-3px 0px -3px 0px;}");
-    m_slider_vol->setCursor(Qt::PointingHandCursor);
-    VolButton *btn=new VolButton(":/image/video/menu_vol.png",this);
-    btn->setParentSlider(m_slider_vol);
+    m_volSlider = new BaseSlider(Qt::Horizontal,this);
+    m_volSlider->setFixedSize(volume_slider_width,volume_slider_height);
 
-    btn->setFixedSize(30,30);
-    lyout->addWidget(btn,0,Qt::AlignLeft|Qt::AlignVCenter);
-    //    lyout->addSpacing(5);
-    lyout->addWidget(m_slider_vol,0,Qt::AlignLeft|Qt::AlignVCenter);
-    lyout->setContentsMargins(0,0,0,0);
-    lyout->setSpacing(0);
-    setLayout(lyout);
+    m_btnIcon = new FlatButton(this);
+    m_btnIcon->setFixedSize(volume_icon_size,volume_icon_size);
+    m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_on.png)");
 
-    //    setFixedSize(190,30);
-    connect(m_slider_vol,SIGNAL(valueChanged(int)),btn,SLOT(setButtonPixmap(int)));
-    connect(m_slider_vol,SIGNAL(valueChanged(int)),this,SIGNAL(sig_valueChanged(int)));
-    connect(btn,SIGNAL(setMute(int)),m_slider_vol,SLOT(setValue(int)));
-    m_slider_vol->setValue(80);
-#endif
+    layout->addWidget(m_btnIcon,0,Qt::AlignRight|Qt::AlignVCenter);
+    layout->addWidget(m_volSlider,0,Qt::AlignLeft|Qt::AlignVCenter);
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(10);
+    setLayout(layout);
+
+    connect(m_volSlider,SIGNAL(valueChanged(int)),this,SLOT(slot_onSliderValueChanged(int)));
+    connect(m_btnIcon,SIGNAL(clicked(bool)),this,SLOT(slot_onIconClick()));
+}
+
+void VolWidget::updateIconBySliderValue(int value)
+{
+    if(value == 0){
+        isMute = true;
+        m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_off.png)");
+    }else{
+        isMute = false;
+        m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_on.png);");
+    }
+}
+
+void VolWidget::slot_onSliderValueChanged(int value)
+{
+    updateIconBySliderValue(value);
+    emit sig_valueChanged(value);
+}
+
+void VolWidget::slot_onIconClick()
+{
+    if(isMute){
+        m_volSlider->setValue(valueBeforeMute);
+    }else{
+        valueBeforeMute = m_volSlider->value();
+        m_volSlider->setValue(0);
+    }
 }

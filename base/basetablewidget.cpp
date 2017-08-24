@@ -25,6 +25,10 @@ BaseTableWidget::BaseTableWidget(QWidget *parent,int moveDistanceNextStep):QTabl
 {
     m_moveDistanceNextStep = moveDistanceNextStep;
     init();
+
+    // Initialize timer in order to distinguish click and lonePressed.
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
 }
 
 void BaseTableWidget::init()
@@ -48,7 +52,7 @@ void BaseTableWidget::init()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     //   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    verticalScrollBar()->setStyleSheet("QScrollBar{background:transparent; width: 0.5px;margin: 0px 0px 0px 0px;}"
+    verticalScrollBar()->setStyleSheet("QScrollBar{background:transparent; width: 3px;margin: 0px 0px 0px 0px;}"
                                        "QScrollBar::handle{background:rgb(217,217,217);border-radius:0px;}"
                                        "QScrollBar::handle:hover{background: rgb(191,191,191);}"
                                        "QScrollBar::add-line:vertical{border:1px rgb(230,230,230);height: 0px;}"
@@ -62,16 +66,27 @@ void BaseTableWidget::init()
                   );
 }
 
+void BaseTableWidget::onTimerTimeout()
+{
+    m_timer->stop();
+    emit longPressedEvent(pressedRow);
+}
+
 void BaseTableWidget::mousePressEvent(QMouseEvent *event)
 {
     QTableWidget::mousePressEvent(event);
     m_pressPoint = event->pos();
+
+    pressedRow = this->itemAt(m_pressPoint)->row();
+    m_timer->start(1000);
 }
 
 void BaseTableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     QTableWidget::mouseReleaseEvent(event);
     m_pressPoint = QPoint(0,0);
+
+    m_timer->stop();
 }
 
 void BaseTableWidget::mouseMoveEvent(QMouseEvent *event)

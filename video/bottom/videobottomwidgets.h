@@ -13,10 +13,16 @@ class FullScreenControlWidgets;
 
 class VideoBottomWidgets:public BaseWidget
 {
+    Q_OBJECT
 public:
     VideoBottomWidgets(QWidget *parent=0,bool fullScreenStyle = false);
     ~VideoBottomWidgets();
-public:
+
+    void setPlayingStyle();
+    void setPauseStyle();
+    void updatePlayModeIcon(PlayMode playMode);
+    void updateVolumeSliderValue(int value);
+private:
     FlatButton *m_btnOpenFile;
     FlatButton *m_btnPlayPause;
     FlatButton *m_btnNext;
@@ -26,16 +32,24 @@ public:
     FlatButton *m_btnRefresh;
     FlatButton *m_btnPlayMode;
 
-    void setPlayingStyle();
-    void setPauseStyle();
-    void updatePlayModeIcon(VideoList::PlayMode playMode);
-private:
     FullScreenControlWidgets *m_parent;
     bool isFullScreenStyle;
 
     void initLayout();
+    void initConnection();
 protected:
     void mousePressEvent(QMouseEvent *);
+signals:
+    void openFileClick();
+    void volumeValueChanged(int);
+    void nextClick();
+    void lastClick();
+    void nextLongPressed();
+    void lastLongPressed();
+    void playPauseClick();
+    void playModeClick();
+    void refreshClick();
+    void changeSizeClick();
 };
 
 #endif // VIDEOBOTTOMWIDGETS_H

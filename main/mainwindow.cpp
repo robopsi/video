@@ -25,10 +25,6 @@ void MainWindow::initLayout(){
 
 void MainWindow::initConnection()
 {
-    connect(m_videoWid->m_topWid->m_btnmini,SIGNAL(clicked(bool)),this,SLOT(showMinimized()));
-    connect(m_videoWid->m_topWid->m_btnexit,SIGNAL(clicked(bool)),this,SLOT(slot_appQuit()));
-    //    connect(m_videoWid->m_topWid->m_btnreturn,SIGNAL(clicked(bool)),this,SLOT(slot_appQuit()));
-
     // Update media resource when receive signals from 'uevent' or 'inotify'.
     connect(this,SIGNAL(beginUpdateMediaResource()),this,SLOT(slot_setUpdateFlag()));
     connect(this,SIGNAL(updateUiByRes(QFileInfoList)),this,SLOT(slot_updateUiByRes(QFileInfoList)));
@@ -58,11 +54,7 @@ void MainWindow::slot_updateMedia()
 
 void MainWindow::slot_updateUiByRes(QFileInfoList videoFileList)
 {
-    m_videoWid->m_middleWid->m_listWid->updateResUi(videoFileList);
-    if(m_videoWid->getPlayer()->currentMedia().canonicalUrl().toString()!="")
-    {
-        m_videoWid->slot_onCurrentMediaChanged(m_videoWid->getPlayer()->currentMedia());
-    }
+    m_videoWid->updateUiByRes(videoFileList);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -92,12 +84,6 @@ void MainWindow::slot_standby()
     system("echo mem > /sys/power/state");
 }
 
-void MainWindow::slot_appQuit()
-{
-    m_videoWid->savaSetting();
-    this->close();
-}
-
 mediaUpdateThread::mediaUpdateThread(QObject *parent,MainWindow *mainWindow):QThread(parent)
 {
     m_mainWindow = mainWindow;
@@ -106,6 +92,6 @@ mediaUpdateThread::mediaUpdateThread(QObject *parent,MainWindow *mainWindow):QTh
 }
 void mediaUpdateThread::run()
 {
-    QFileInfoList videoFileList = m_mainWindow->getVideoWidget()->m_middleWid->m_listWid->findVideoFiles(VIDEO_SEARCH_PATH);
+    QFileInfoList videoFileList = m_mainWindow->getVideoWidget()->findAllVideoFiles(VIDEO_SEARCH_PATH);
     emit m_mainWindow->updateUiByRes(videoFileList);
 }

@@ -2,7 +2,6 @@
 
 VideoMiddleWidgets::VideoMiddleWidgets(QWidget *parent):BaseWidget(parent)
 {
-    setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     initLayout();
 }
 
@@ -13,8 +12,8 @@ void VideoMiddleWidgets::initLayout()
     m_listWid = new VideoListWidgets(this);
     m_contentWid = new VideoContentWidgets(this);
 
-    hmainlayout->addWidget(m_contentWid,9);
-    hmainlayout->addWidget(m_listWid,4);
+    hmainlayout->addWidget(m_contentWid,2);
+    hmainlayout->addWidget(m_listWid,1);
     hmainlayout->setContentsMargins(0,0,0,0);
     hmainlayout->setSpacing(0);
 

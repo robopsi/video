@@ -12,6 +12,12 @@
 #include <QQuickWidget>
 #include <QMediaPlayer>
 
+enum CurrentSizeState
+{
+    FullScreenSize,
+    NormalSize
+};
+
 /**
  * Manager video content widgets.
  *
@@ -25,12 +31,6 @@ public:
     VideoContentWidgets(QWidget *parent);
     ~VideoContentWidgets();
 public:
-    enum CurrentSizeState
-    {
-        FullScreenSize,
-        NormalSize
-    };
-
     void addPositionWidget();
     void removePositionWidget();
     void onDurationChanged(qint64 duration);
@@ -52,7 +52,10 @@ private:
     CurrentSizeState m_currentSizeState;
 
     void initLayout();
+    void initConnection();
 signals:
+    void surfaceOneClick();
+    void surfaceDoubleClick();
     void sig_sliderPositionChanged(int);
 };
 

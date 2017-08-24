@@ -12,8 +12,7 @@ VideoContentWidgets::VideoContentWidgets(QWidget *parent):BaseWidget(parent)
     setStyleSheet("#VideoContentWidgets{background:rgb(10,10,10)}");
 
     initLayout();
-    // Initialize connection of slider moving.
-    connect(m_positionWid->m_slider,SIGNAL(sig_sliderPositionChanged(int)),this,SIGNAL(sig_sliderPositionChanged(int)));
+    initConnection();
 }
 
 void VideoContentWidgets::initLayout()
@@ -42,6 +41,15 @@ void VideoContentWidgets::initLayout()
 
     removePositionWidget();
     setLayout(m_layout);
+}
+
+void VideoContentWidgets::initConnection()
+{
+    connect(m_surfaceWid,SIGNAL(contentOneClick()),this,SIGNAL(surfaceOneClick()));
+    connect(m_surfaceWid,SIGNAL(contentDoubleClick()),this,SIGNAL(surfaceDoubleClick()));
+
+    // Initialize connection of slider moving.
+    connect(m_positionWid,SIGNAL(sliderValueChange(int)),this,SIGNAL(sig_sliderPositionChanged(int)));
 }
 
 void VideoContentWidgets::addPositionWidget()

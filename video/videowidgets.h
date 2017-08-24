@@ -31,7 +31,8 @@ public:
     void savaSetting();
     void updateVolume(bool volumeAdd);
     void setPlayerPause(){m_player->pause();}
-    QMediaPlayer* getPlayer(){return m_player;}
+    QFileInfoList findAllVideoFiles(const QString &serachPath);
+    void updateUiByRes(QFileInfoList);
 public:
     VideoMiddleWidgets *m_middleWid;
     VideoBottomWidgets *m_bottomWid;
@@ -50,15 +51,8 @@ private:
 
     void initLayout();
     void initPlayerAndConnection();
-
-    /**
-     * Read the settting of application saved last time.such as volume.
-     */
+    // Read the settting of application saved last time.such as volume、playMode.
     void readSetting();
-
-    /**
-     * return the state of initial.
-     */
     void setOriginState();
 public slots:
      void slot_onCurrentMediaChanged(QMediaContent);
@@ -69,13 +63,14 @@ private slots:
     void slot_onDurationChanged(qint64);
     void slot_onSliderPositionChanged(int);
 
-    void slot_onLocalListItemDoubleClick(int,int);
+    void slot_onLocalListItemClick(int,int);
+    void slot_deleteTableItem(int);
     void slot_setPlayPause();
     void slot_nextVideo(bool isEndofMedia = false);
     void slot_lastVideo();
     void slot_addVideo();
     void slot_volumeChanged(int);
-    void slot_returnClick();
+    void slot_exit();
     void slot_refreshMediaResource();
     void slot_fullScreenStyle();
     void slot_normalSizeStyle();

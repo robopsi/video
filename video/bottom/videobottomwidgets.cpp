@@ -3,11 +3,13 @@
 #ifdef DEVICE_EVB
 int video_bottom_height  = 160;
 int video_playButton_size = 100;
-int playMode_size = 60;
+int refresh_playmode_size = 70;
+int layout_temp = 25;
 #else
 int video_bottom_height  = 70;
 int video_playButton_size = 50;
-int playMode_size = 30;
+int refresh_playmode_size = 40;
+int layout_temp = 10;
 #endif
 
 VideoBottomWidgets::VideoBottomWidgets(QWidget *parent,bool fullScreenStyle):BaseWidget(parent)
@@ -23,6 +25,7 @@ VideoBottomWidgets::VideoBottomWidgets(QWidget *parent,bool fullScreenStyle):Bas
     setFixedHeight(video_bottom_height);
 
     initLayout();
+    initConnection();
 }
 
 void VideoBottomWidgets::initLayout()
@@ -43,8 +46,8 @@ void VideoBottomWidgets::initLayout()
     m_btnLast->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnOpenFile->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnChangeSize->setFixedSize(video_playButton_size,video_playButton_size);
-    m_btnRefresh->setFixedSize(video_playButton_size,video_playButton_size);
-    m_btnPlayMode->setFixedSize(playMode_size,playMode_size);
+    m_btnRefresh->setFixedSize(refresh_playmode_size,refresh_playmode_size);
+    m_btnPlayMode->setFixedSize(refresh_playmode_size,refresh_playmode_size-layout_temp);
 
     m_btnNext->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_next (1).png);}"
                              "QPushButton::hover{border-image:url(:/image/video/btn_next (2).png);}"
@@ -97,8 +100,21 @@ void VideoBottomWidgets::initLayout()
         m_btnRefresh->setVisible(false);
     }
 
-
     setLayout(hmainlyout);
+}
+
+void VideoBottomWidgets::initConnection()
+{
+    connect(m_btnOpenFile,SIGNAL(clicked(bool)),this,SIGNAL(openFileClick()));
+    connect(m_VolWidget,SIGNAL(sig_valueChanged(int)),this,SIGNAL(volumeValueChanged(int)));
+    connect(m_btnPlayPause,SIGNAL(clicked(bool)),this,SIGNAL(playPauseClick()));
+    connect(m_btnNext,SIGNAL(clicked(bool)),this,SIGNAL(nextClick()));
+    connect(m_btnNext,SIGNAL(longPressedEvent()),this,SIGNAL(nextLongPressed()));
+    connect(m_btnLast,SIGNAL(clicked(bool)),this,SIGNAL(lastClick()));
+    connect(m_btnLast,SIGNAL(longPressedEvent()),this,SIGNAL(lastLongPressed()));
+    connect(m_btnPlayMode,SIGNAL(clicked(bool)),this,SIGNAL(playModeClick()));
+    connect(m_btnChangeSize,SIGNAL(clicked(bool)),this,SIGNAL(changeSizeClick()));
+    connect(m_btnRefresh,SIGNAL(clicked(bool)),this,SIGNAL(refreshClick()));
 }
 
 void VideoBottomWidgets::setPlayingStyle()
@@ -116,16 +132,16 @@ void VideoBottomWidgets::setPauseStyle()
                                   "QPushButton::pressed{border-image:url(:/image/video/btn_play (3).png);}");
 }
 
-void VideoBottomWidgets::updatePlayModeIcon(VideoList::PlayMode playMode)
+void VideoBottomWidgets::updatePlayModeIcon(PlayMode playMode)
 {
     switch(playMode){
-    case VideoList::PlayRandom:
+    case PlayRandom:
         m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_random.png);}");
         break;
-    case VideoList::PlayOneCircle:
+    case PlayOneCircle:
         m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_single.png);}");
         break;
-    case VideoList::PlayInOrder:
+    case PlayInOrder:
         m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}");
         break;
     }
@@ -136,6 +152,11 @@ void VideoBottomWidgets::mousePressEvent(QMouseEvent *)
     if(isFullScreenStyle&&m_parent!=NULL){
         m_parent->slot_showControlView();
     }
+}
+
+void VideoBottomWidgets::updateVolumeSliderValue(int value)
+{
+    m_VolWidget->updateSlider(value);
 }
 
 VideoBottomWidgets::~VideoBottomWidgets()

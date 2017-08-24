@@ -9,22 +9,19 @@
 
 class VideoTopWidgets:public BaseWidget
 {
+    Q_OBJECT
 public:    
     VideoTopWidgets(QWidget *parent=0);
     ~VideoTopWidgets();
 
     void setPlayingVideoName(QString text){m_playingVideoName->setText(text);}
-public:
-    FourStateButton *m_btnreturn;
-    FlatButton *m_btnicon;
-    FlatButton *m_btnmobile;
-    FlatButton *m_btnsetting;
-    FlatButton *m_btnmini;
-    FlatButton *m_btnexit;
-
 private:
+    FourStateButton *m_btnreturn;
     void initLayout();
+    void initConnection();
 
     QLabel *m_playingVideoName;
+signals:
+    void returnClick();
 };
 #endif // VIDEOTOPWIDGETS_H

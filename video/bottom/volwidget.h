@@ -1,15 +1,32 @@
 #ifndef VOLWIDGET_H
 #define VOLWIDGET_H
 
-#include <QSlider>
-#include "myslider.h"
+#include "base/baseslider.h"
 
-class VolWidget :public QWidget
+#include <QWidget>
+#include <QObject>
+#include "basepushbutton.h"
+
+class VolWidget: public QWidget
 {
     Q_OBJECT
 public:
-    VolWidget(QWidget*parent);
-    mySlider *m_slider_vol;
+    VolWidget(QWidget *parent);
+    ~VolWidget(){}
+
+    void updateSlider(int value){m_volSlider->setValue(value);}
+private:
+    bool isMute;
+    int valueBeforeMute;
+
+    BaseSlider *m_volSlider;
+    FlatButton *m_btnIcon;
+
+    void init();
+    void updateIconBySliderValue(int);
+private slots:
+    void slot_onIconClick();
+    void slot_onSliderValueChanged(int);
 signals:
     void sig_valueChanged(int);
 };

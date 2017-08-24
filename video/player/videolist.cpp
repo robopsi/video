@@ -3,24 +3,35 @@
 
 VideoList::VideoList(QObject *parent):QObject(parent)
 {
-    m_currentPlayMode = PlayInOrder;
-    m_currentIndex = 0 ;
+    m_currentIndex = 0;
     m_list.empty();
+
+    setPlayMode(PlayInOrder);
+}
+
+void VideoList::setPlayMode(PlayMode playmode)
+{
+    m_playmode = playmode;
 }
 
 void VideoList::changePlayMode()
 {
-    switch (m_currentPlayMode) {
+    switch (m_playmode) {
     case PlayInOrder:
-        m_currentPlayMode = PlayRandom;
+        m_playmode = PlayRandom;
         break;
     case PlayRandom:
-        m_currentPlayMode = PlayOneCircle;
+        m_playmode = PlayOneCircle;
         break;
     case PlayOneCircle:
-        m_currentPlayMode = PlayInOrder;
+        m_playmode = PlayInOrder;
         break;
     }
+}
+
+void VideoList::removeItem(int index)
+{
+    m_list.removeAt(index);
 }
 
 QUrl VideoList::getUrlAt(int index)
@@ -33,7 +44,7 @@ QUrl VideoList::getUrlAt(int index)
 
 QUrl VideoList::getNextVideoUrl()
 {
-    switch(m_currentPlayMode){
+    switch(m_playmode){
     case PlayOneCircle:
         break;
     case PlayInOrder:
@@ -55,7 +66,7 @@ QUrl VideoList::getNextVideoUrl()
 
 QUrl VideoList::getPreVideoUrl()
 {
-    switch(m_currentPlayMode){
+    switch(m_playmode){
     case PlayOneCircle:
         break;
     case PlayInOrder:

@@ -4,6 +4,12 @@
 #include <QObject>
 #include <QUrl>
 
+enum PlayMode{
+    PlayInOrder,
+    PlayRandom,
+    PlayOneCircle
+};
+
 /**
  * Used for manager the video list.
  *
@@ -16,29 +22,23 @@ class VideoList:public QObject
 public:
     VideoList(QObject *parent = 0);
 
-    enum PlayMode{
-        PlayInOrder,
-        PlayRandom,
-        PlayOneCircle
-    };
-
+    void clearList();
+    void setPlayMode(PlayMode);
+    int getPlayMode(){return m_playmode;}
+    inline void addPlayList(const QString& path){m_list.append(QUrl::fromLocalFile(path));}
     QUrl getUrlAt(int index);
     QUrl getNextVideoUrl();
     QUrl getPreVideoUrl();
-    void clearList();
-
+    void removeItem(int index);
     QList<QUrl> getUrlList(){return m_list;}
-    inline void addToPlayList(const QString& path){m_list.append(QUrl::fromLocalFile(path));}
-
     void changePlayMode();
-    PlayMode getCurrentPlayMode(){return m_currentPlayMode;}
+    PlayMode getCurrentPlayMode(){return m_playmode;}
 private:
     // Current play list.
     QList<QUrl> m_list;
-    // Current play index.
     int m_currentIndex;
-
-    PlayMode m_currentPlayMode;
+    // Current play index.
+    PlayMode m_playmode;
 };
 
 #endif // VIDEOLIST_H

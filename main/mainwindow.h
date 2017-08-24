@@ -32,7 +32,6 @@ private:
     void initConnection();
 
 public slots:
-    void slot_appQuit();
     void slot_updateMedia();
 private slots:
     // Slot in order to update media resource.

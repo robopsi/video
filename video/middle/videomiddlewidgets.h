@@ -21,9 +21,11 @@ public:
     VideoMiddleWidgets(QWidget *parent =0);
     ~VideoMiddleWidgets();
 
+    VideoListWidgets* &getListWidget(){return m_listWid;}
+    VideoContentWidgets* &getContentWidget(){return m_contentWid;}
+private:
     VideoListWidgets *m_listWid;
     VideoContentWidgets *m_contentWid;
-private:
 
     void initLayout();
 };

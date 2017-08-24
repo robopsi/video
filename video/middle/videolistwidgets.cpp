@@ -75,7 +75,8 @@ void VideoListWidgets::initConnection()
 {
     connect(m_listHeader,SIGNAL(buttonLocalClick()),this,SLOT(slot_switchToLocalList()));
     connect(m_listHeader,SIGNAL(buttonNetClick()),this,SLOT(slot_switchToNetList()));
-    //connect(m_localTable,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(sig_localTableItemDoubleClick(int,int)));
+    connect(m_localTable,SIGNAL(cellClicked(int,int)),this,SIGNAL(sig_localTableItemClick(int,int)));
+    connect(m_localTable,SIGNAL(longPressedEvent(int)),this,SIGNAL(tableLongPressed(int)));
 }
 
 void VideoListWidgets::addRefreshSuffix(QString suffix)
@@ -94,11 +95,12 @@ void VideoListWidgets::setOriginState()
     }
 }
 
+void VideoListWidgets::deleteItem(int row)
+{
+    m_localTable->removeRow(row);
+    m_playList->removeItem(row);
+}
 
-/**
- * Used to find out all video files
- * @param path The path to search video
- */
 QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
 {
     QFileInfoList videoFiles;
@@ -136,21 +138,24 @@ void VideoListWidgets::updateResUi(QFileInfoList fileList)
     for(int i=0;i<fileList.size();i++){
         QFileInfo fileInfo = fileList.at(i);
         if(!m_playList->getUrlList().contains(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))){
-            int rowCount = m_localTable->rowCount();
-            insertIntoLocalTable(rowCount,fileInfo.fileName()," ");
-            m_playList->addToPlayList(fileInfo.absoluteFilePath());
+            insertIntoLocalTable(fileInfo);
         }
     }
     m_curPlayingIndex = -1;
 }
 
-
-void VideoListWidgets::insertIntoLocalTable(int row, QString videoName, QString duration)
+void VideoListWidgets::insertIntoLocalTable(QFileInfo fileInfo)
 {
-    m_localTable->insertRow(row);
-    m_localTable->setItem(row,0,new QTableWidgetItem(videoName));
-    m_localTable->setItem(row,1,new QTableWidgetItem(duration));
-    m_localTable->item(row,1)->setTextAlignment(Qt::AlignVCenter|Qt::AlignRight);
+    QString videName = fileInfo.fileName();
+    QString filePath = fileInfo.absoluteFilePath();
+
+    int rowcount= m_localTable->rowCount();
+    m_localTable->insertRow(rowcount);
+    m_localTable->setItem(rowcount,0,new QTableWidgetItem(videName));
+    m_localTable->setItem(rowcount,1,new QTableWidgetItem(""));
+    m_localTable->item(rowcount,1)->setTextAlignment(Qt::AlignVCenter|Qt::AlignRight);
+
+    m_playList->addPlayList(filePath);
 }
 
 void VideoListWidgets::updatePlayingItemStyle(QMediaContent content)
@@ -201,12 +206,7 @@ void VideoListWidgets::addVideo()
             QFileInfo info(files[i]);
             if(!m_playList->getUrlList().contains(QUrl::fromLocalFile(files.value(i)))&&info.exists())
             {
-                QString fileName=info.fileName();
-                QString filePath=files.value(i);
-
-                int rowCount = m_localTable->rowCount();
-                insertIntoLocalTable(rowCount,fileName," ");
-                m_playList->addToPlayList(filePath);
+                insertIntoLocalTable(info);
             }
         }
     }

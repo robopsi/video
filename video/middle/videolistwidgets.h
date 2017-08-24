@@ -25,16 +25,17 @@ public:
     ~VideoListWidgets();
 public:
     void updateResUi(QFileInfoList fileList);
+    // Used to find out all video files
     QFileInfoList findVideoFiles(const QString& path = QString(""));
     QString getCurrentVideoName(){return m_curPlayingVideoName;}
-    VideoList* getVideoList(){return m_playList;}
     void updatePlayingItemStyle(QMediaContent);
     void addVideo();
     void setOriginState();
     void addRefreshSuffix(QString suffix);
-
-    VideoLocalListTable *m_localTable;
+    VideoList* &getVideoList(){return m_playList;}
+    void deleteItem(int);
 private:
+    VideoLocalListTable *m_localTable;
     ListHeader *m_listHeader;
     QStackedWidget *m_stackedWid;
     VideoNetListTable *m_netTable;
@@ -49,9 +50,10 @@ private:
     void initData();
     void initLayout();
     void initConnection();
-    void insertIntoLocalTable(int row,QString videoName,QString duration);
+    void insertIntoLocalTable(QFileInfo);
 signals:
-//    sig_localTableItemDoubleClick(int,int);
+    void sig_localTableItemClick(int,int);
+    int tableLongPressed(int);
 private slots:
     void slot_switchToLocalList(){m_stackedWid->setCurrentIndex(0);}
     void slot_switchToNetList(){m_stackedWid->setCurrentIndex(1);}

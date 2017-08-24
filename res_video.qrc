@@ -18,13 +18,13 @@
         <file>image/video/btn_previous (2).png</file>
         <file>image/video/btn_previous (3).png</file>
         <file>image/video/btn_previous (4).png</file>
-        <file>image/video/menu_vol (2).png</file>
-        <file>image/video/menu_vol.png</file>
         <file>image/video/btn_fullscreen.png</file>
         <file>image/video/video_refresh.png</file>
         <file>image/video/btn_normalSize.png</file>
         <file>image/video/btn_list.png</file>
         <file>image/video/btn_random.png</file>
         <file>image/video/btn_single.png</file>
+        <file>image/video/btn_volume_off.png</file>
+        <file>image/video/btn_volume_on.png</file>
     </qresource>
 </RCC>
