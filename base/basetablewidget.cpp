@@ -76,9 +76,11 @@ void BaseTableWidget::mousePressEvent(QMouseEvent *event)
 {
     QTableWidget::mousePressEvent(event);
     m_pressPoint = event->pos();
-
-    pressedRow = this->itemAt(m_pressPoint)->row();
-    m_timer->start(1000);
+	
+    if(this->itemAt(m_pressPoint)!=NULL){
+	pressedRow = this->itemAt(m_pressPoint)->row();
+	m_timer->start(1000);
+    }
 }
 
 void BaseTableWidget::mouseReleaseEvent(QMouseEvent *event)
