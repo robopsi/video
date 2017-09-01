@@ -1,5 +1,6 @@
 #include "absframelessautosize.h"
 
+
 AbsFrameLessAutoSize::AbsFrameLessAutoSize(QWidget *parent)
     : QWidget(parent)
 {
@@ -12,6 +13,25 @@ AbsFrameLessAutoSize::AbsFrameLessAutoSize(QWidget *parent)
     //setting windows tool bar icon invisiable
     setWindowFlags(Qt::FramelessWindowHint);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    thread=new UeventThread(this);
+    thread->start();
+    inotifyThread =new InotifyThread(this);
+    inotifyThread->start();
+}
+void AbsFrameLessAutoSize::stopUeventLoop(){
+    if(thread){
+        thread->requestInterruption();
+        thread->terminate();
+        thread->quit();
+        thread->wait();
+    }
+    if(inotifyThread ){
+        inotifyThread->requestInterruption();
+        inotifyThread->terminate();
+        inotifyThread->quit();
+        inotifyThread->wait();
+    }
 }
 
 void AbsFrameLessAutoSize::setBorder(int border)

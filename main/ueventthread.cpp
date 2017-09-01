@@ -46,7 +46,7 @@ void UeventThread::run()
 
             parse_event(msg, &luther_gliethttp);
         }
-    } while(1);
+    } while(!isInterruptionRequested());
 }
 
 static int open_luther_gliethttp_socket(void)
