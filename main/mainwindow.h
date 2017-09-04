@@ -8,6 +8,9 @@
 #include <base/basewindow.h>
 #include <QThread>
 
+#include "ueventthread.h"
+#include "inotifythread.h"
+
 /**
  * The main window of application.
  *
@@ -19,15 +22,22 @@ class MainWindow : public BaseWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ~MainWindow(){}
 protected:
     void keyPressEvent(QKeyEvent *event);
+    // Used for disable or enable application when car-reverse event comes.
+    void disableApplication();
+    void enableApplication();
 public:
     VideoWidgets* getVideoWidget(){return m_videoWid;}
 private:
     bool mediaHasUpdate;
     VideoWidgets *m_videoWid;
+    // Thread for media resource update.
+    UeventThread *ueventThread;
+    InotifyThread *inotifyThread;
 private:
+    void initData();
     void initLayout();
     void initConnection();
 

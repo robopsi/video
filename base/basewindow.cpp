@@ -1,6 +1,10 @@
 #include "basewindow.h"
+#include <QMessageBox>
 
-BaseWindow::BaseWindow(QWidget *parent) : AbsFrameLessAutoSize(parent)
+#define MSG_DISABLE_APPLICATION "APP_DISABLE"
+#define MSG_ENABLE_APPLICATION "APP_ENABLE"
+
+BaseWindow::BaseWindow(QWidget *parent):AbsFrameLessAutoSize(parent)
   , m_drag(false)
 {
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -8,6 +12,23 @@ BaseWindow::BaseWindow(QWidget *parent) : AbsFrameLessAutoSize(parent)
     // Just modify the 'm_mainwid' if you wan't to modify the UI.
     m_mainwid = new BaseWidget(this);
     m_mainwid->setAutoFillBackground(true);
+
+    /* Accoding to the message from parent process for next action */
+    fileIn.open(stdin, QIODevice::ReadOnly);
+    QSocketNotifier* sn = new QSocketNotifier(fileIn.handle(), QSocketNotifier::Read, this);
+    connect(sn, SIGNAL(activated(int)), this, SLOT(slot_readFromServer(int)));
+}
+
+void BaseWindow::slot_readFromServer(int fd)
+{
+    if(fd != fileIn.handle())
+        return;
+
+    if(strncmp(fileIn.readLine().data(),MSG_DISABLE_APPLICATION,strlen(MSG_DISABLE_APPLICATION)) == 0){
+        disableApplication();
+    }else{
+        enableApplication();
+    }
 }
 
 void BaseWindow::paintEvent(QPaintEvent *e)
@@ -42,8 +63,6 @@ void BaseWindow::mousePressEvent(QMouseEvent *event)
     }
     QWidget::mousePressEvent(event);
 }
-
-
 
 void BaseWindow::mouseReleaseEvent(QMouseEvent *event)
 {

@@ -13,25 +13,6 @@ AbsFrameLessAutoSize::AbsFrameLessAutoSize(QWidget *parent)
     //setting windows tool bar icon invisiable
     setWindowFlags(Qt::FramelessWindowHint);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-
-    thread=new UeventThread(this);
-    thread->start();
-    inotifyThread =new InotifyThread(this);
-    inotifyThread->start();
-}
-void AbsFrameLessAutoSize::stopUeventLoop(){
-    if(thread){
-        thread->requestInterruption();
-        thread->terminate();
-        thread->quit();
-        thread->wait();
-    }
-    if(inotifyThread ){
-        inotifyThread->requestInterruption();
-        inotifyThread->terminate();
-        inotifyThread->quit();
-        inotifyThread->wait();
-    }
 }
 
 void AbsFrameLessAutoSize::setBorder(int border)
@@ -205,6 +186,7 @@ void AbsFrameLessAutoSize::mouseMoveRect(const QPoint& p)
         }
     }
 }
+
 void AbsFrameLessAutoSize::mousePressEvent(QMouseEvent *event)
 {
     m_state.PressedSize=this->size();
@@ -214,6 +196,7 @@ void AbsFrameLessAutoSize::mousePressEvent(QMouseEvent *event)
     {
     }
 }
+
 void AbsFrameLessAutoSize::mouseMoveEvent(QMouseEvent *event)
 {
     mouseMoveRect(mapFromGlobal(event->globalPos()));
@@ -222,6 +205,7 @@ void AbsFrameLessAutoSize::mouseMoveEvent(QMouseEvent *event)
         this->move(m_state.WindowPos + (event->globalPos() - m_state.MousePos));
     }
 }
+
 void AbsFrameLessAutoSize::mouseReleaseEvent(QMouseEvent *event)
 {
     m_state.IsPressBorder=false;

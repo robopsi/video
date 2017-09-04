@@ -8,6 +8,7 @@ class InotifyThread:public QThread
 {
 public:
     InotifyThread(QObject *parent=0);
+    ~InotifyThread();
 protected:
     void run();
 };

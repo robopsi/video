@@ -3,24 +3,32 @@
 
 MainWindow::MainWindow(QWidget *parent) :BaseWindow(parent),mediaHasUpdate(false)
 {
-    // Initialize global main class of 'MainWindow' for other widgets invokes.
-    mainWindow = this;
-
+    initData();
     initLayout();
     initConnection();
     slot_updateMedia();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::initData()
 {
+    // Initialize global main class of 'MainWindow' for other widgets invokes.
+    mainWindow = this;
+    // Start media source update thread.
+    // Uevent for usb and inotify for file modify.
+    ueventThread = new UeventThread(this);
+    ueventThread->start();
+    inotifyThread = new InotifyThread(this);
+    inotifyThread->start();
 }
 
 void MainWindow::initLayout(){
     QVBoxLayout *mainLayout = new QVBoxLayout;
+
     m_videoWid = new VideoWidgets(this);
     mainLayout->addWidget(m_videoWid);
-    setLayout(mainLayout);
     mainLayout->setContentsMargins(0,0,0,0);
+
+    setLayout(mainLayout);
 }
 
 void MainWindow::initConnection()
@@ -34,13 +42,13 @@ void MainWindow::slot_setUpdateFlag()
 {
     /*
      * This operation setted because that inotify event send no more one siganl.
-     * So set a 2 seconds duration to ignore theres no-use siganls.
+     * So set a 500ms duration to ignore theres no-use siganls.
      * Note: it is expected to optimize.
      */
     if(!mediaHasUpdate)
     {
         mediaHasUpdate = true;
-        QTimer::singleShot(2000,this,SLOT(slot_updateMedia()));
+        QTimer::singleShot(500,this,SLOT(slot_updateMedia()));
     }
 }
 
@@ -55,6 +63,19 @@ void MainWindow::slot_updateMedia()
 void MainWindow::slot_updateUiByRes(QFileInfoList videoFileList)
 {
     m_videoWid->updateUiByRes(videoFileList);
+}
+
+void MainWindow::disableApplication()
+{
+    qDebug("disable video application.");
+    m_videoWid->setPlayerPause();
+    this->setVisible(false);
+}
+
+void MainWindow::enableApplication()
+{
+    qDebug("enable video application.");
+    this->setVisible(true);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -88,7 +109,6 @@ mediaUpdateThread::mediaUpdateThread(QObject *parent,MainWindow *mainWindow):QTh
 {
     m_mainWindow = mainWindow;
     qRegisterMetaType<QFileInfoList>("QFileInfoList");
-    qRegisterMetaType<QMap<QString,QImage>>("QMap<QString,QImage>");
 }
 void mediaUpdateThread::run()
 {

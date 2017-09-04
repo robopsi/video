@@ -397,7 +397,7 @@ void VideoWidgets::slot_exit()
     // Release media source and quit application.
     m_player->stop();
     m_player->setMedia(NULL);
-    mainWindow->stopUeventLoop();
+
     savaSetting();
     mainWindow->close();
 }

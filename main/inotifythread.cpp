@@ -29,7 +29,14 @@ char *event_str[EVENT_NUM] =
 
 InotifyThread::InotifyThread(QObject *parent):QThread(parent)
 {
+}
 
+InotifyThread::~InotifyThread()
+{
+    requestInterruption();
+    terminate();
+    quit();
+    wait();
 }
 
 QList<QString> getAllDirPath(const QString& path)
@@ -80,7 +87,7 @@ void InotifyThread::run()
                                IN_CREATE | IN_DELETE | IN_DELETE_SELF );
 
     buf[sizeof(buf) - 1] = 0;
-    while( (len = read(fd, buf, sizeof(buf) - 1)) > 0 ){
+    while((len = read(fd, buf, sizeof(buf) - 1)) > 0 && !isInterruptionRequested()){
         nread = 0;
         while( len > 0 ){
             event = (struct inotify_event *)&buf[nread];
