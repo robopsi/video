@@ -102,7 +102,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::slot_standby()
 {
-    system("echo mem > /sys/power/state");
 }
 
 mediaUpdateThread::mediaUpdateThread(QObject *parent,MainWindow *mainWindow):QThread(parent)
