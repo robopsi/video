@@ -380,6 +380,26 @@ void VideoWidgets::slot_volumeChanged(int value)
     if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
         m_fullScreenContrlWid->slot_showControlView();
     }
+    saveVolume(value);
+}
+
+
+void VideoWidgets::saveVolume(int volume){
+
+    QDir  settingsDir("/data/");
+    QFile *volumeFile;
+    if(settingsDir.exists()){
+        volumeFile = new QFile("/data/volumn");
+    }else{
+        volumeFile = new QFile("/etc/volumn");
+    }
+
+    if (volumeFile->open(QFile::WriteOnly | QIODevice::Truncate)) {
+        QTextStream out(volumeFile);
+        out <<volume;
+        volumeFile->close();
+     }
+    delete volumeFile;
 }
 
 void VideoWidgets::savaSetting()
@@ -419,6 +439,7 @@ void VideoWidgets::updateVolume(bool volumeAdd)
     }
     m_bottomWid->updateVolumeSliderValue(m_player->volume());
     m_fullScreenContrlWid->getControlWidget()->updateVolumeSliderValue(m_player->volume());
+    saveVolume(m_player->volume());
 }
 
 VideoWidgets::~VideoWidgets()

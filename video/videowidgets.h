@@ -29,6 +29,7 @@ public:
     ~VideoWidgets();
 
     void savaSetting();
+    void saveVolume(int volume);
     void updateVolume(bool volumeAdd);
     void setPlayerPause(){m_player->pause();}
     QFileInfoList findAllVideoFiles(const QString &serachPath);
