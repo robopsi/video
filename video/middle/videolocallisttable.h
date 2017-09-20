@@ -12,9 +12,18 @@ public:
 
     void setPlayingItemIndex(int index){m_playingItemRow = index;}
     void setRowTextColor(int row,const QColor &color)const;
+
+    void insertIntoTable(QString item1Text,QString item2Text);
+    void removeTableItem(int row);
+    void clearTable();
+    void playingItemChanged(int index);
+    void setOriginState();
 private:
     void init();
     void initConnection();
+
+    int playingItemIndex;
+    QString playingItemSuffix;
 
     int m_previousFousedRow;
     int m_playingItemRow;

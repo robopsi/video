@@ -27,8 +27,6 @@ private:
     bool isFullScreenStyle;
 
     void initWidget();
-protected:
-    void mousePressEvent(QMouseEvent*);
 signals:
     void sliderValueChange(int);
 };

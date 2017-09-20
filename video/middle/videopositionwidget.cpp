@@ -77,19 +77,6 @@ void VideoPositionWidget::onMediaPositionChanged(qint64 position)
     m_currentTime->setText(currentTime.toString("hh:mm:ss"));
 }
 
-void VideoPositionWidget::mousePressEvent(QMouseEvent *event)
-{
-    if(m_slider->x() < event->x() && event->x() < (m_slider->x()+m_slider->width())){
-        int dur = m_slider->maximum() - m_slider->minimum();
-        int pos = m_slider->minimum() + dur * (((double)event->x()-m_slider->x())/ m_slider->width());
-        if(pos != m_slider->sliderPosition()){
-            m_slider->setValue(pos);
-            emit m_slider->sig_sliderPositionChanged(pos);
-        }
-    }
-    m_parent->slot_showControlView();
-}
-
 VideoPositionWidget::~VideoPositionWidget()
 {
 }

@@ -27,7 +27,6 @@ public:
     void updateResUi(QFileInfoList fileList);
     // Used to find out all video files
     QFileInfoList findVideoFiles(const QString& path = QString(""));
-    QString getCurrentVideoName(){return m_curPlayingVideoName;}
     void updatePlayingItemStyle(QMediaContent);
     void addVideo();
     void setOriginState();
@@ -39,10 +38,7 @@ private:
     ListHeader *m_listHeader;
     QStackedWidget *m_stackedWid;
     VideoNetListTable *m_netTable;
-    // Play list information.
-    int m_curPlayingIndex;
-    QString m_curPlayingDuration;
-    QString m_curPlayingVideoName;
+
     VideoList *m_playList;
     // List of search suffix when refresh video resource.
     QList<QString> m_refreshSuffixList;

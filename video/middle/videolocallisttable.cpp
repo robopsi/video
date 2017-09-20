@@ -14,6 +14,7 @@ int move_distance_next_step = 100;
 #endif
 
 VideoLocalListTable::VideoLocalListTable(QWidget *parent):BaseTableWidget(parent,move_distance_next_step)
+  ,playingItemIndex(-1)
 {
     init();
     initConnection();
@@ -35,18 +36,64 @@ void VideoLocalListTable::initConnection()
     connect(this,SIGNAL(cellEntered(int,int)),this,SLOT(slot_cellEnter(int,int)));
 }
 
+void VideoLocalListTable::playingItemChanged(int index)
+{
+    if(playingItemIndex != -1){
+        item(playingItemIndex,1)->setText(playingItemSuffix);
+    }
+
+    if(index != -1){
+        playingItemIndex = index;
+        playingItemSuffix = item(index,1)->text();
+        setCurrentCell(index,0);
+        item(index,1)->setText("Playing");
+    }
+}
+
+void VideoLocalListTable::insertIntoTable(QString item1Text, QString item2Text)
+{
+    int count= rowCount();
+    insertRow(count);
+
+    setItem(count,0,new QTableWidgetItem(item1Text));
+    setItem(count,1,new QTableWidgetItem(item2Text));
+
+    item(count,1)->setTextAlignment(Qt::AlignVCenter|Qt::AlignRight);
+}
+
+void VideoLocalListTable::removeTableItem(int row)
+{
+    this->removeRow(row);
+    if(row < playingItemIndex){
+        playingItemIndex --;
+    }else if(row == playingItemIndex){
+        playingItemIndex = -1;
+    }
+}
+
+void VideoLocalListTable::setOriginState()
+{
+    setCurrentCell(-1,-1);
+    playingItemChanged(-1);
+}
+
+void VideoLocalListTable::clearTable()
+{
+    for(int i = rowCount();i > 0;i--){
+        removeRow(0);
+    }
+}
+
 void VideoLocalListTable::slot_cellEnter(int row,int column)
 {
     QTableWidgetItem *it = item(m_previousFousedRow,0);
-    if(it != NULL)
-    {
+    if(it != NULL){
         if(m_playingItemRow!=m_previousFousedRow){
             setRowTextColor(m_previousFousedRow,QColor(255,255,255));
         }
     }
     it = item(row, column);
-    if(it != NULL)
-    {
+    if(it != NULL){
         setRowTextColor(row,QColor(26,158,255));
     }
     m_previousFousedRow = row;
@@ -54,8 +101,7 @@ void VideoLocalListTable::slot_cellEnter(int row,int column)
 
 void VideoLocalListTable::setRowTextColor(int row, const QColor &color)const
 {
-    for(int col=0; col<columnCount(); col++)
-    {
+    for(int col=0; col<columnCount(); col++){
         QTableWidgetItem *it = item(row, col);
         it->setTextColor(color);
     }

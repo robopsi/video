@@ -11,7 +11,6 @@
 #include "global_value.h"
 
 VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
-  ,m_curPlayingIndex(-1)
 {
     //Set background color.
     setObjectName("VideoListWidgets");
@@ -44,7 +43,6 @@ void VideoListWidgets::initData()
     m_refreshSuffixList.append("3GP");
     m_refreshSuffixList.append("Vob");
     m_refreshSuffixList.append("MPG");
-    m_refreshSuffixList.append("DAT");
 }
 
 void VideoListWidgets::initLayout()
@@ -86,18 +84,12 @@ void VideoListWidgets::addRefreshSuffix(QString suffix)
 
 void VideoListWidgets::setOriginState()
 {
-    if(m_curPlayingIndex!=-1)
-    {
-        m_localTable->setRowTextColor(m_curPlayingIndex,QColor(255,255,255));
-        m_localTable->item(m_curPlayingIndex,1)->setText("");
-        m_curPlayingIndex = -1;
-        m_localTable->setCurrentCell(-1,0);
-    }
+    m_localTable->setOriginState();
 }
 
 void VideoListWidgets::deleteItem(int row)
 {
-    m_localTable->removeRow(row);
+    m_localTable->removeTableItem(row);
     m_playList->removeItem(row);
 }
 
@@ -128,11 +120,7 @@ QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
 
 void VideoListWidgets::updateResUi(QFileInfoList fileList)
 {
-    // Clear list first.
-    for(int i = m_localTable->rowCount();i > 0;i--)
-    {
-        m_localTable->removeRow(0);
-    }
+    m_localTable->clearTable();
     m_playList->clearList();
 
     for(int i=0;i<fileList.size();i++){
@@ -141,19 +129,14 @@ void VideoListWidgets::updateResUi(QFileInfoList fileList)
             insertIntoLocalTable(fileInfo);
         }
     }
-    m_curPlayingIndex = -1;
 }
 
 void VideoListWidgets::insertIntoLocalTable(QFileInfo fileInfo)
 {
-    QString videName = fileInfo.fileName();
+    QString videoName = fileInfo.fileName();
     QString filePath = fileInfo.absoluteFilePath();
 
-    int rowcount= m_localTable->rowCount();
-    m_localTable->insertRow(rowcount);
-    m_localTable->setItem(rowcount,0,new QTableWidgetItem(videName));
-    m_localTable->setItem(rowcount,1,new QTableWidgetItem(""));
-    m_localTable->item(rowcount,1)->setTextAlignment(Qt::AlignVCenter|Qt::AlignRight);
+    m_localTable->insertIntoTable(videoName,"");
 
     m_playList->addPlayList(filePath);
 }
@@ -161,36 +144,16 @@ void VideoListWidgets::insertIntoLocalTable(QFileInfo fileInfo)
 void VideoListWidgets::updatePlayingItemStyle(QMediaContent content)
 {
     QList<QUrl> urlList = m_playList->getUrlList();
-    // Restore state next time.
-    if(m_curPlayingIndex!=-1)
-    {
-        m_localTable->setRowTextColor(m_curPlayingIndex,QColor(255,255,255));
-        m_localTable->item(m_curPlayingIndex,1)->setText(m_curPlayingDuration);
-        m_curPlayingIndex = -1;
-        m_localTable->setPlayingItemIndex(m_curPlayingIndex);
-        m_localTable->setCurrentCell(-1,0);
-    }
     int index = -1;
-    for(int i=0;i < urlList.size();i++)
-    {
+    for(int i=0;i < urlList.size();i++){
         if(urlList.at(i)==content.canonicalUrl()){
             index = i;
             break;
         }
     }
-    if(index!=-1)
-    {
-        m_curPlayingIndex = index;
-        m_curPlayingDuration = m_localTable->item(index,1)->text();
-        m_curPlayingVideoName = m_localTable->item(index,0)->text();
-
-        m_localTable->setRowTextColor(m_curPlayingIndex,QColor(26,158,255));
-        m_localTable->item(index,1)->setText(str_video_playing);
-
-        m_localTable->setCurrentCell(index,0);
-        m_localTable->setPlayingItemIndex(m_curPlayingIndex);
+    if(index!=-1){
+        m_localTable->playingItemChanged(index);
     }
-    update();
 }
 
 void VideoListWidgets::addVideo()

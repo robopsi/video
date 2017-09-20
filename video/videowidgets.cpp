@@ -189,7 +189,7 @@ void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
 void VideoWidgets::slot_onCurrentMediaChanged(QMediaContent content)
 {
     m_middleWid->getListWidget()->updatePlayingItemStyle(content);
-    m_topWid->setPlayingVideoName(m_middleWid->getListWidget()->getCurrentVideoName());
+    m_topWid->setPlayingVideoName(content.canonicalUrl().fileName());
 }
 
 void VideoWidgets::slot_onLocalListItemClick(int row, int)
