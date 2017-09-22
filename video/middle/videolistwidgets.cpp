@@ -7,6 +7,7 @@
 #include <QEventLoop>
 #include <QMediaPlayer>
 #include <QDirIterator>
+#include <QFile>
 
 #include "global_value.h"
 
@@ -89,6 +90,10 @@ void VideoListWidgets::setOriginState()
 
 void VideoListWidgets::deleteItem(int row)
 {
+    QFile file(m_playList->getUrlAt(row).path());
+    if(file.exists()){
+        file.remove();
+    }
     m_localTable->removeTableItem(row);
     m_playList->removeItem(row);
 }
