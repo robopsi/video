@@ -344,6 +344,11 @@ void VideoWidgets::slot_refreshMediaResource()
                                                  &isConfirm);
     if(isConfirm){
         if(!appendSuffix.isEmpty()){
+            if(appendSuffix.contains(".")){
+                QFileInfo fileInfo(appendSuffix);
+                appendSuffix=fileInfo.suffix();
+            }
+
             m_middleWid->getListWidget()->addRefreshSuffix(appendSuffix);
         }
         mainWindow->slot_updateMedia();
