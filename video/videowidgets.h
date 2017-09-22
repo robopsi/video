@@ -80,6 +80,8 @@ private slots:
     void slot_fastBackward();
 
     void slot_onErrorOn(QMediaPlayer::Error);
+
+    void sloat_tableLongPressed(int);
 };
 
 #endif // VIDEOWIDGETS_H

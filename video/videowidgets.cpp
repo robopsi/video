@@ -114,7 +114,7 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_bottomWid,SIGNAL(playModeClick()),this,SLOT(slot_changePlayMode()));
 
     connect(m_middleWid->getListWidget(),SIGNAL(sig_localTableItemClick(int,int)),this,SLOT(slot_onLocalListItemClick(int,int)));
-    connect(m_middleWid->getListWidget(),SIGNAL(tableLongPressed(int)),this,SLOT(slot_deleteTableItem(int)));
+    connect(m_middleWid->getListWidget(),SIGNAL(tableLongPressed(int)),this,SLOT(sloat_tableLongPressed(int)));
     connect(m_middleWid->getContentWidget(),SIGNAL(surfaceOneClick()),this,SLOT(slot_fullScreenStyle()));
     connect(m_middleWid->getContentWidget(),SIGNAL(surfaceDoubleClick()),this,SLOT(slot_fullScreenStyle()));
     connect(m_middleWid->getContentWidget(),SIGNAL(sig_sliderPositionChanged(int)),this,SLOT(slot_onSliderPositionChanged(int)));
@@ -199,6 +199,15 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
     if(m_player->isAvailable()){
         m_player->setMedia(url);
         m_player->play();
+    }
+}
+
+void VideoWidgets::sloat_tableLongPressed(int row){
+    QMessageBox box(QMessageBox::Warning,"question","Sure you want to remove the record ?");
+    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
+    if(box.exec() == QMessageBox::Yes)
+    {
+        slot_deleteTableItem(row);
     }
 }
 
