@@ -27,7 +27,14 @@ void VolWidget::init()
 
     m_btnIcon = new FlatButton(this);
     m_btnIcon->setFixedSize(volume_icon_size,volume_icon_size);
-    m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_on.png)");
+    m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}\
+                             QPushButton:pressed\
+                             {\
+                                 background-color:rgb(204 , 228 , 247);\
+                                 border: 1px solid rgb(1 , 84 , 153);\
+                                 padding-left:3px;\
+                                 padding-top:3px;\
+                             }");
 
     layout->addWidget(m_btnIcon,0,Qt::AlignRight|Qt::AlignVCenter);
     layout->addWidget(m_volSlider,0,Qt::AlignLeft|Qt::AlignVCenter);
@@ -43,10 +50,24 @@ void VolWidget::updateIconBySliderValue(int value)
 {
     if(value == 0){
         isMute = true;
-        m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_off.png)");
+        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_off.png);}\
+                                 QPushButton:pressed\
+                                 {\
+                                     background-color:rgb(204 , 228 , 247);\
+                                     border: 1px solid rgb(1 , 84 , 153);\
+                                     padding-left:3px;\
+                                     padding-top:3px;\
+                                 }");
     }else{
         isMute = false;
-        m_btnIcon->setStyleSheet("border-image:url(:/image/video/btn_volume_on.png);");
+        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}\
+                                 QPushButton:pressed\
+                                 {\
+                                     background-color:rgb(204 , 228 , 247);\
+                                     border: 1px solid rgb(1 , 84 , 153);\
+                                     padding-left:3px;\
+                                     padding-top:3px;\
+                                 }");
     }
 }
 
