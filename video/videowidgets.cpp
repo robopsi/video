@@ -5,11 +5,14 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QInputDialog>
+#include <QMediaMetaData>
 
+#include "player/videoinfoutil.h"
 #include "player/videolist.h"
 #include "global_value.h"
 
 VideoWidgets::VideoWidgets(QWidget *parent): BaseWidget(parent)
+  ,ignore_item_delete_siganl(false)
 {
     setStyleSheet("QLabel{color:white;}");
 
@@ -52,6 +55,7 @@ void VideoWidgets::readSetting()
 
 void VideoWidgets::setOriginState()
 {
+    m_player->setMedia(NULL);
     m_topWid->setPlayingVideoName(str_videoName_default);
     m_middleWid->getContentWidget()->removePositionWidget();
     m_middleWid->getListWidget()->setOriginState();
@@ -99,6 +103,7 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(slot_onMediaPositionChanged(qint64)));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(slot_onDurationChanged(qint64)));
     connect(m_player,SIGNAL(error(QMediaPlayer::Error)),this,SLOT(slot_onErrorOn(QMediaPlayer::Error)));
+    connect(m_player,SIGNAL(metaDataChanged(QString,QVariant)),this,SLOT(slot_onMetaDataChanged(QString,QVariant)));
 
     connect(m_topWid,SIGNAL(returnClick()),this,SLOT(slot_exit()));
 
@@ -156,6 +161,10 @@ void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
     setOriginState();
 }
 
+void VideoWidgets::slot_onMetaDataChanged(QString,QVariant)
+{
+}
+
 void VideoWidgets::slot_onMediaStateChanged(QMediaPlayer::MediaStatus status)
 {
     switch(status){
@@ -197,6 +206,18 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
     m_player->stop();
     QUrl url= m_middleWid->getListWidget()->getVideoList()->getUrlAt(row);
     if(m_player->isAvailable()){
+        // check resolution is correct.
+        if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
+            QMessageBox box(QMessageBox::Critical,"Video Format Error",
+                            "video resolution not support.",QMessageBox::Yes);
+            ignore_item_delete_siganl = true;
+            slot_normalSizeStyle();
+            setOriginState();
+            box.exec();
+            ignore_item_delete_siganl = false;
+            return;
+        }
+
         m_player->setMedia(url);
         m_player->play();
     }
@@ -213,6 +234,9 @@ void VideoWidgets::sloat_tableLongPressed(int row){
 
 void VideoWidgets::slot_deleteTableItem(int row)
 {
+    if(ignore_item_delete_siganl){
+        return;
+    }
     m_middleWid->getListWidget()->deleteItem(row);
     m_middleWid->getListWidget()->updatePlayingItemStyle(m_player->currentMedia());
 }
@@ -237,7 +261,20 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
     m_player->stop();
     VideoList *playList = m_middleWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
-        m_player->setMedia(playList->getNextVideoUrl());
+        QUrl url = playList->getNextVideoUrl();
+        // check resolution is correct.
+        if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
+            QMessageBox box(QMessageBox::Critical,"Video Format Error",
+                            "video resolution not support.",QMessageBox::Yes);
+            ignore_item_delete_siganl = true;
+            slot_normalSizeStyle();
+            setOriginState();
+            box.exec();
+            ignore_item_delete_siganl = false;
+            return;
+        }
+
+        m_player->setMedia(url);
         m_player->play();
     }
     if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize && !isEndofMedia){
@@ -250,7 +287,20 @@ void VideoWidgets::slot_lastVideo()
     m_player->stop();
     VideoList *playList = m_middleWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
-        m_player->setMedia(playList->getPreVideoUrl());
+        QUrl url = playList->getPreVideoUrl();
+        // check resolution is correct.
+        if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
+            QMessageBox box(QMessageBox::Critical,"Video Format Error",
+                            "video resolution not support.",QMessageBox::Yes);
+            ignore_item_delete_siganl = true;
+            slot_normalSizeStyle();
+            setOriginState();
+            box.exec();
+            ignore_item_delete_siganl = false;
+            return;
+        }
+
+        m_player->setMedia(url);
         m_player->play();
     }
     if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
@@ -412,7 +462,7 @@ void VideoWidgets::saveVolume(int volume){
         QTextStream out(volumeFile);
         out <<volume;
         volumeFile->close();
-     }
+    }
     delete volumeFile;
 }
 

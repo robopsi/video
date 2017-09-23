@@ -103,16 +103,13 @@ QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
     QFileInfoList videoFiles;
 
     QDirIterator it(path,QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
-    while (it.hasNext())
-    {
+    while (it.hasNext()){
         QString name = it.next();
         QFileInfo info(name);
-        if (info.isDir())
-        {
+        if (info.isDir()){
             videoFiles.append(findVideoFiles(name));
         }
-        else
-        {
+        else{
             for(int i=0;i<m_refreshSuffixList.count();i++){
                 if(info.suffix().compare(m_refreshSuffixList.at(i),Qt::CaseInsensitive) == 0){
                     videoFiles.append(info);

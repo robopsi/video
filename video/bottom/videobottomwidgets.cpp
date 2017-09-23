@@ -4,11 +4,13 @@
 int video_bottom_height  = 160;
 int video_playButton_size = 100;
 int refresh_playmode_size = 70;
+int change_surface_size = 55;
 int layout_temp = 25;
 #else
 int video_bottom_height  = 70;
 int video_playButton_size = 50;
 int refresh_playmode_size = 40;
+int change_surface_size = 35;
 int layout_temp = 10;
 #endif
 
@@ -45,7 +47,7 @@ void VideoBottomWidgets::initLayout()
     m_btnNext->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnLast->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnOpenFile->setFixedSize(video_playButton_size,video_playButton_size);
-    m_btnChangeSize->setFixedSize(video_playButton_size,video_playButton_size);
+    m_btnChangeSize->setFixedSize(change_surface_size,change_surface_size);
     m_btnRefresh->setFixedSize(refresh_playmode_size,refresh_playmode_size);
     m_btnPlayMode->setFixedSize(refresh_playmode_size,refresh_playmode_size-layout_temp);
 
