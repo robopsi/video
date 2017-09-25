@@ -120,8 +120,14 @@ static void parse_event(const char *msg, struct luther_gliethttp *luther_glietht
     regExp.setCaseSensitivity(Qt::CaseSensitive);
     regExp.setPattern("sd[a-z][0-9]");
 
+    QRegExp regExp2;
+    regExp2.setPatternSyntax(QRegExp::RegExp);
+    regExp2.setCaseSensitivity(Qt::CaseSensitive);
+    regExp2.setPattern("mmcblk");
+
     if(strcmp(luther_gliethttp->action,"remove")==0 ||
-            (strcmp(luther_gliethttp->action,"add")==0&&regExp.indexIn(QString(luther_gliethttp->path))>=0)){
+            (strcmp(luther_gliethttp->action,"add")==0&&regExp.indexIn(QString(luther_gliethttp->path))>=0) ||
+            (strcmp(luther_gliethttp->action,"add")==0&&regExp2.indexIn(QString(luther_gliethttp->path))>=0)){
         printf("event{'%s','%s','%s','%s',%d,%d}\n",
                luther_gliethttp->action, luther_gliethttp->path, luther_gliethttp->subsystem,
                luther_gliethttp->firmware, luther_gliethttp->major, luther_gliethttp->minor);

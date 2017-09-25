@@ -10,7 +10,7 @@ class VideoLocalListTable:public BaseTableWidget
 public:
     VideoLocalListTable(QWidget *parent);
 
-    void setPlayingItemIndex(int index){m_playingItemRow = index;}
+    void setPlayingItemIndex(int index);
     void setRowTextColor(int row,const QColor &color)const;
 
     void insertIntoTable(QString item1Text,QString item2Text);
@@ -26,7 +26,6 @@ private:
     QString playingItemSuffix;
 
     int m_previousFousedRow;
-    int m_playingItemRow;
 protected:
     void leaveEvent(QEvent *event);
     void resizeEvent(QResizeEvent*);

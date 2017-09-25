@@ -37,38 +37,46 @@ bool VideoInfoUtil::isVideoSolutionSuitable(const QString &filePath)
     std::smatch matchResult;
     std::regex regex("([\\s\\S]*)Video:(.*?),(.*?),(.*?)([\\s\\S]*)");
     bool isSuitable = true;
+    bool resultAvailale = false;
 
     sprintf(cmdLine,"ffmpeg -i %s -hide_banner 2>&1",filePath.toLocal8Bit().constData());
 
     if((stream = popen(cmdLine,"r")) != NULL){
         while(fgets(buff,1024,stream)){
-            //Stream #0:1: Video: rv20 (RV20 / 0x30325652), yuv420p, 352x288, 117 kb/s,
-            //15 fps, 15 tbr, 1k tbn, 1k tbc
             std::string str(buff);
             if(std::regex_match(str,matchResult,regex)){
                 std::vector<std::string> vector = stringSplit(str,",",true);
-                if(vector.size() >= 3){
+                for(unsigned int resolutionIndex=2;vector.size()>=3&&resolutionIndex<vector.size();resolutionIndex++){
                     // get resolution width and height.
-                    std::vector<std::string> sizeVector = stringSplit(vector.at(2),"x",true);
-                    if(sizeVector.size() >= 2){
-                        int width = std::stoi(sizeVector.at(0));
-                        int height = 0;
-                        if(sizeVector.at(1).find(" ") != std::string::npos){
-                            height = std::stoi(stringSplit(sizeVector.at(1)," ",true).at(0));
-                        }else{
-                            height = std::stoi(sizeVector.at(1));
+                    std::vector<std::string> sizeVector = stringSplit(vector.at(resolutionIndex),"x",true);
+                    if(sizeVector.size() < 2){
+                        continue;
+                    }else{
+                        try{
+                            int width = std::stoi(sizeVector.at(0));
+                            int height = 0;
+                            if(sizeVector.at(1).find(" ") != std::string::npos){
+                                height = std::stoi(stringSplit(sizeVector.at(1)," ",true).at(0));
+                            }else{
+                                height = std::stoi(sizeVector.at(1));
+                            }
+                            printf("video resulution: width: %d,height: %d \n",width,height);
+                            if(width > 1920 || height > 1080){
+                                isSuitable = false;
+                            }
+                            resultAvailale = true;
+                            break;
+                        }catch(...){
+                            continue;
                         }
-                        printf("video resulution: width: %d,height: %d \n",width,height);
-                        if(width > 1920 || height > 1080){
-                            isSuitable = false;
-                        }
-                        break;
                     }
                 }
             }
+            if(resultAvailale){
+                break;
+            }
         }
     }
-
     pclose(stream);
     return isSuitable?true:false;
 }

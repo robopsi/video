@@ -15,6 +15,7 @@ int move_distance_next_step = 100;
 
 VideoLocalListTable::VideoLocalListTable(QWidget *parent):BaseTableWidget(parent,move_distance_next_step)
   ,playingItemIndex(-1)
+  ,m_previousFousedRow(-1)
 {
     init();
     initConnection();
@@ -22,9 +23,6 @@ VideoLocalListTable::VideoLocalListTable(QWidget *parent):BaseTableWidget(parent
 
 void VideoLocalListTable::init()
 {
-    m_previousFousedRow = -1;
-    m_playingItemRow = -1;
-
     insertColumn(0);
     insertColumn(1);
 
@@ -71,10 +69,18 @@ void VideoLocalListTable::removeTableItem(int row)
     }
 }
 
+void VideoLocalListTable::setPlayingItemIndex(int index)
+{
+    playingItemIndex = index;
+}
+
 void VideoLocalListTable::setOriginState()
 {
     setCurrentCell(-1,-1);
-    playingItemChanged(-1);
+    if(this->rowCount() > playingItemIndex && playingItemIndex != -1){
+        item(playingItemIndex,1)->setText(playingItemSuffix);
+    }
+    playingItemIndex = -1;
 }
 
 void VideoLocalListTable::clearTable()
@@ -88,7 +94,7 @@ void VideoLocalListTable::slot_cellEnter(int row,int column)
 {
     QTableWidgetItem *it = item(m_previousFousedRow,0);
     if(it != NULL){
-        if(m_playingItemRow!=m_previousFousedRow){
+        if(playingItemIndex!=m_previousFousedRow){
             setRowTextColor(m_previousFousedRow,QColor(255,255,255));
         }
     }

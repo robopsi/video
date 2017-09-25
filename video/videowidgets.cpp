@@ -55,10 +55,10 @@ void VideoWidgets::readSetting()
 
 void VideoWidgets::setOriginState()
 {
-    m_player->setMedia(NULL);
     m_topWid->setPlayingVideoName(str_videoName_default);
     m_middleWid->getContentWidget()->removePositionWidget();
     m_middleWid->getListWidget()->setOriginState();
+    m_player->setMedia(NULL);
 }
 
 void VideoWidgets::initLayout()
@@ -152,13 +152,12 @@ void VideoWidgets::updateUiByRes(QFileInfoList fileInfoList)
 
 void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
 {
-    m_player->setMedia(NULL);
     if(QMessageBox::Yes == QMessageBox::critical(mainWindow,"Video Error","It has encountered an error.",
                                                  QMessageBox::Yes | QMessageBox::Yes))
     {
         slot_normalSizeStyle();
+        setOriginState();
     }
-    setOriginState();
 }
 
 void VideoWidgets::slot_onMetaDataChanged(QString,QVariant)
@@ -206,6 +205,7 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
     m_player->stop();
     QUrl url= m_middleWid->getListWidget()->getVideoList()->getUrlAt(row);
     if(m_player->isAvailable()){
+#ifndef DEVICE_EVB
         // check resolution is correct.
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
@@ -217,7 +217,7 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
             ignore_item_delete_siganl = false;
             return;
         }
-
+#endif
         m_player->setMedia(url);
         m_player->play();
     }
@@ -262,6 +262,7 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
     VideoList *playList = m_middleWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
         QUrl url = playList->getNextVideoUrl();
+#ifndef DEVICE_EVB
         // check resolution is correct.
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
@@ -273,7 +274,7 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
             ignore_item_delete_siganl = false;
             return;
         }
-
+#endif
         m_player->setMedia(url);
         m_player->play();
     }
@@ -288,6 +289,7 @@ void VideoWidgets::slot_lastVideo()
     VideoList *playList = m_middleWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
         QUrl url = playList->getPreVideoUrl();
+#ifndef DEVICE_EVB
         // check resolution is correct.
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
@@ -299,7 +301,7 @@ void VideoWidgets::slot_lastVideo()
             ignore_item_delete_siganl = false;
             return;
         }
-
+#endif
         m_player->setMedia(url);
         m_player->play();
     }
