@@ -43,7 +43,6 @@ private:
     int top_normal_height;
     int bottom_normal_height;
     int middle_list_width;
-    bool ignore_item_delete_siganl;
 
     QMediaPlayer *m_player;
     QUrl m_onPlayUrl;
@@ -67,7 +66,6 @@ private slots:
     void slot_onMetaDataChanged(QString,QVariant);
 
     void slot_onLocalListItemClick(int,int);
-    void slot_deleteTableItem(int);
     void slot_setPlayPause();
     void slot_nextVideo(bool isEndofMedia = false);
     void slot_lastVideo();

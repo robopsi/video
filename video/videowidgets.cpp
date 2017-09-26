@@ -12,7 +12,6 @@
 #include "global_value.h"
 
 VideoWidgets::VideoWidgets(QWidget *parent): BaseWidget(parent)
-  ,ignore_item_delete_siganl(false)
 {
     setStyleSheet("QLabel{color:white;}");
 
@@ -58,7 +57,6 @@ void VideoWidgets::setOriginState()
     m_topWid->setPlayingVideoName(str_videoName_default);
     m_middleWid->getContentWidget()->removePositionWidget();
     m_middleWid->getListWidget()->setOriginState();
-    m_player->setMedia(NULL);
 }
 
 void VideoWidgets::initLayout()
@@ -210,11 +208,10 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
-            ignore_item_delete_siganl = true;
+            m_player->setMedia(NULL);
             slot_normalSizeStyle();
             setOriginState();
             box.exec();
-            ignore_item_delete_siganl = false;
             return;
         }
 #endif
@@ -226,19 +223,10 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
 void VideoWidgets::sloat_tableLongPressed(int row){
     QMessageBox box(QMessageBox::Warning,"question","Sure you want to remove the record ?");
     box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
-    if(box.exec() == QMessageBox::Yes)
-    {
-        slot_deleteTableItem(row);
+    if(box.exec() == QMessageBox::Yes){
+        m_middleWid->getListWidget()->deleteItem(row);
+        m_middleWid->getListWidget()->updatePlayingItemStyle(m_player->currentMedia());
     }
-}
-
-void VideoWidgets::slot_deleteTableItem(int row)
-{
-    if(ignore_item_delete_siganl){
-        return;
-    }
-    m_middleWid->getListWidget()->deleteItem(row);
-    m_middleWid->getListWidget()->updatePlayingItemStyle(m_player->currentMedia());
 }
 
 void VideoWidgets::slot_setPlayPause()
@@ -267,11 +255,10 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
-            ignore_item_delete_siganl = true;
+            m_player->setMedia(NULL);
             slot_normalSizeStyle();
             setOriginState();
             box.exec();
-            ignore_item_delete_siganl = false;
             return;
         }
 #endif
@@ -294,11 +281,10 @@ void VideoWidgets::slot_lastVideo()
         if(!VideoInfoUtil::isVideoSolutionSuitable(url.path())){
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
-            ignore_item_delete_siganl = true;
+            m_player->setMedia(NULL);
             slot_normalSizeStyle();
             setOriginState();
             box.exec();
-            ignore_item_delete_siganl = false;
             return;
         }
 #endif

@@ -38,6 +38,8 @@ private:
     QMutex mutex;
     int scrollBarMaximum;
     QPoint m_pressPoint;
+
+    bool m_longPressedOn;
 private slots:
     void onTimerTimeout();
 protected:

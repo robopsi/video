@@ -69,6 +69,7 @@ void BaseTableWidget::init()
 void BaseTableWidget::onTimerTimeout()
 {
     m_timer->stop();
+    m_longPressedOn = true;
     emit longPressedEvent(pressedRow);
 }
 
@@ -76,6 +77,7 @@ void BaseTableWidget::mousePressEvent(QMouseEvent *event)
 {
     QTableWidget::mousePressEvent(event);
     m_pressPoint = event->pos();
+    m_longPressedOn = false;
 
     if(this->itemAt(m_pressPoint)!=NULL){
         pressedRow = this->itemAt(m_pressPoint)->row();
@@ -85,10 +87,12 @@ void BaseTableWidget::mousePressEvent(QMouseEvent *event)
 
 void BaseTableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    QTableWidget::mouseReleaseEvent(event);
     m_pressPoint = QPoint(0,0);
-
     m_timer->stop();
+
+    if(!m_longPressedOn){
+        QTableWidget::mouseReleaseEvent(event);
+    }
 }
 
 void BaseTableWidget::mouseMoveEvent(QMouseEvent *event)
