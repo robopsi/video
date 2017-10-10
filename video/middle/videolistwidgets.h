@@ -11,7 +11,6 @@
 #include <QObject>
 #include <QStackedWidget>
 #include <QMediaContent>
-#include <QEventLoop>
 
 /**
  * Manager UI of video list widgets and send siganls and

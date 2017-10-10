@@ -19,7 +19,8 @@ VideoPositionWidget::VideoPositionWidget(QWidget *parent,bool fullScreenStyle):B
 
     // Set background color.
     setFixedHeight(video_position_height);
-    setStyleSheet("background:rgba(31,31,31)");
+    setObjectName("VideoPositionWidget");
+    setStyleSheet("#VideoPositionWidget{background:rgba(31,31,31)}");
 
     initWidget();
 

@@ -78,7 +78,7 @@ void InotifyThread::run()
 
     QList<QString> pathList = getAllDirPath(VIDEO_SEARCH_PATH);
     for(int i=0;i<pathList.size();i++){
-        qDebug("Add inotify path: %s",pathList.at(i).toLatin1().data());
+//        qDebug("Add inotify path: %s",pathList.at(i).toLatin1().data());
         inotify_add_watch(fd, pathList.at(i).toLatin1().data(),
                           IN_CREATE | IN_DELETE | IN_DELETE_SELF);
     }

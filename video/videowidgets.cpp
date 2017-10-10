@@ -6,12 +6,14 @@
 #include <QDir>
 #include <QInputDialog>
 #include <QMediaMetaData>
+#include <QDateTime>
 
 #include "player/videoinfoutil.h"
 #include "player/videolist.h"
 #include "global_value.h"
 
 VideoWidgets::VideoWidgets(QWidget *parent): BaseWidget(parent)
+  ,m_mediaLoadThread(0)
 {
     setStyleSheet("QLabel{color:white;}");
 
@@ -29,9 +31,9 @@ void VideoWidgets::readSetting()
     // Read play mode.
     int playModeIndex = 0;
     playModeIndex = setting.value("playmode").toInt();
-    VideoList *playList = m_middleWid->getListWidget()->getVideoList();
+    VideoList *playList = m_fullScreenContrlWid->getListWidget()->getVideoList();
     playList->setPlayMode((PlayMode)playModeIndex);
-    m_bottomWid->updatePlayModeIcon(playList->getCurrentPlayMode());
+    m_fullScreenContrlWid->getControlWidget()->updatePlayModeIcon(playList->getCurrentPlayMode());
 
     // Set volume saved in configration file first.
     QFile *volumnFile;
@@ -48,33 +50,30 @@ void VideoWidgets::readSetting()
     long volumnInt= volumnString.toInt();
 
     m_player->setVolume(volumnInt);
-    m_bottomWid->updateVolumeSliderValue(m_player->volume());
     m_fullScreenContrlWid->getControlWidget()->updateVolumeSliderValue(m_player->volume());
 }
 
 void VideoWidgets::setOriginState()
 {
-    m_topWid->setPlayingVideoName(str_videoName_default);
-    m_middleWid->getContentWidget()->removePositionWidget();
-    m_middleWid->getListWidget()->setOriginState();
+    m_fullScreenContrlWid->getTopWidget()->setPlayingVideoName(str_videoName_default);
+    m_fullScreenContrlWid->removePositionWidget();
+    m_fullScreenContrlWid->showPlayList();
+    m_fullScreenContrlWid->getListWidget()->setOriginState();
+    m_fullScreenContrlWid->stopHideTimer();
 }
 
 void VideoWidgets::initLayout()
 {
-    m_stackedLayout = new QStackedLayout;
+    QStackedLayout *mlayout = new QStackedLayout;
 
     m_fullScreenContrlWid = new FullScreenControlWidgets(this);
 
     // Nomal size state layout.
     QVBoxLayout *narmalStateLayout = new QVBoxLayout;
 
-    m_topWid = new VideoTopWidgets(this);
-    m_middleWid = new VideoMiddleWidgets(this);
-    m_bottomWid = new VideoBottomWidgets(this);
+    m_contentWid = new VideoContentWidgets(this);
 
-    narmalStateLayout->addWidget(m_topWid);
-    narmalStateLayout->addWidget(m_middleWid);
-    narmalStateLayout->addWidget(m_bottomWid);
+    narmalStateLayout->addWidget(m_contentWid);
     narmalStateLayout->setContentsMargins(0,0,0,0);
     narmalStateLayout->setSpacing(0);
 
@@ -83,17 +82,16 @@ void VideoWidgets::initLayout()
     normalStateWid->setWindowFlags(Qt::FramelessWindowHint);
     normalStateWid->setAttribute(Qt::WA_TranslucentBackground, true);
 
-    m_stackedLayout->addWidget(normalStateWid);
-    m_stackedLayout->addWidget(m_fullScreenContrlWid);
-    m_stackedLayout->setStackingMode(QStackedLayout::StackAll);
-    m_stackedLayout->setCurrentIndex(0);
+    mlayout->addWidget(m_fullScreenContrlWid);
+    mlayout->addWidget(normalStateWid);
+    mlayout->setStackingMode(QStackedLayout::StackAll);
 
-    setLayout(m_stackedLayout);
+    setLayout(mlayout);
 }
 
 void VideoWidgets::initPlayerAndConnection()
 {
-    m_player = m_middleWid->getContentWidget()->getMediaPlayerFormQml();
+    m_player = m_contentWid->getMediaPlayerFormQml();
 
     connect(m_player,SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),this,SLOT(slot_onMediaStateChanged(QMediaPlayer::MediaStatus)));
     connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(slot_onPlayerStateChanged(QMediaPlayer::State)));
@@ -103,59 +101,40 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_player,SIGNAL(error(QMediaPlayer::Error)),this,SLOT(slot_onErrorOn(QMediaPlayer::Error)));
     connect(m_player,SIGNAL(metaDataChanged(QString,QVariant)),this,SLOT(slot_onMetaDataChanged(QString,QVariant)));
 
-    connect(m_topWid,SIGNAL(returnClick()),this,SLOT(slot_exit()));
-
-    connect(m_bottomWid,SIGNAL(playPauseClick()),this,SLOT(slot_setPlayPause()));
-    connect(m_bottomWid,SIGNAL(nextClick()),this,SLOT(slot_nextVideo()));
-    connect(m_bottomWid,SIGNAL(nextLongPressed()),this,SLOT(slot_fastForward()));
-    connect(m_bottomWid,SIGNAL(lastClick()),this,SLOT(slot_lastVideo()));
-    connect(m_bottomWid,SIGNAL(lastLongPressed()),this,SLOT(slot_fastBackward()));
-    connect(m_bottomWid,SIGNAL(openFileClick()),this,SLOT(slot_addVideo()));
-    connect(m_bottomWid,SIGNAL(volumeValueChanged(int)),this,SLOT(slot_volumeChanged(int)));
-    connect(m_bottomWid,SIGNAL(changeSizeClick()),this,SLOT(slot_fullScreenStyle()));
-    connect(m_bottomWid,SIGNAL(refreshClick()),this,SLOT(slot_refreshMediaResource()));
-    connect(m_bottomWid,SIGNAL(playModeClick()),this,SLOT(slot_changePlayMode()));
-
-    connect(m_middleWid->getListWidget(),SIGNAL(sig_localTableItemClick(int,int)),this,SLOT(slot_onLocalListItemClick(int,int)));
-    connect(m_middleWid->getListWidget(),SIGNAL(tableLongPressed(int)),this,SLOT(sloat_tableLongPressed(int)));
-    connect(m_middleWid->getContentWidget(),SIGNAL(surfaceOneClick()),this,SLOT(slot_fullScreenStyle()));
-    connect(m_middleWid->getContentWidget(),SIGNAL(surfaceDoubleClick()),this,SLOT(slot_fullScreenStyle()));
-    connect(m_middleWid->getContentWidget(),SIGNAL(sig_sliderPositionChanged(int)),this,SLOT(slot_onSliderPositionChanged(int)));
-
     // Initialize fullscreen style widgets.
+    connect(m_fullScreenContrlWid->getTopWidget(),SIGNAL(returnClick()),this,SLOT(slot_exit()));
+    connect(m_fullScreenContrlWid->getListWidget(),SIGNAL(sig_localTableItemClick(int,int)),this,SLOT(slot_onLocalListItemClick(int,int)));
+    connect(m_fullScreenContrlWid->getListWidget(),SIGNAL(tableLongPressed(int)),this,SLOT(sloat_tableLongPressed(int)));
+    connect(m_fullScreenContrlWid,SIGNAL(sig_sliderPositionChanged(int)),this,SLOT(slot_onSliderPositionChanged(int)));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(playPauseClick()),this,SLOT(slot_setPlayPause()));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(nextClick()),this,SLOT(slot_nextVideo()));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(lastClick()),this,SLOT(slot_lastVideo()));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(nextLongPressed()),this,SLOT(slot_fastForward()));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(lastLongPressed()),this,SLOT(slot_fastBackward()));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(volumeValueChanged(int)),this,SLOT(slot_volumeChanged(int)));
-    connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(changeSizeClick()),this,SLOT(slot_normalSizeStyle()));
     connect(m_fullScreenContrlWid->getPositionWidget(),SIGNAL(sliderValueChange(int)),this,SLOT(slot_onSliderPositionChanged(int)));
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(playModeClick()),this,SLOT(slot_changePlayMode()));
+    connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(playListClick()),this,SLOT(slot_resizePlayList()));
 }
 
 QFileInfoList VideoWidgets::findAllVideoFiles(const QString &serachPath)
 {
-    return m_middleWid->getListWidget()->findVideoFiles(serachPath);
+    return m_fullScreenContrlWid->getListWidget()->findVideoFiles(serachPath);
 }
 
 void VideoWidgets::updateUiByRes(QFileInfoList fileInfoList)
 {
-    m_middleWid->getListWidget()->updateResUi(fileInfoList);
-    if(m_player->currentMedia().canonicalUrl().toString()!="")
-    {
+    m_fullScreenContrlWid->getListWidget()->updateResUi(fileInfoList);
+    if(m_player->currentMedia().canonicalUrl().toString() != ""){
         slot_onCurrentMediaChanged(m_player->currentMedia());
     }
 }
 
 void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
 {
-    if(QMessageBox::Yes == QMessageBox::critical(mainWindow,"Video Error","It has encountered an error.",
-                                                 QMessageBox::Yes | QMessageBox::Yes))
-    {
-        slot_normalSizeStyle();
-        setOriginState();
-    }
+    setOriginState();
+    QMessageBox::critical(mainWindow,"Video Error","It has encountered an error.",
+                          QMessageBox::Yes | QMessageBox::Yes);
 }
 
 void VideoWidgets::slot_onMetaDataChanged(QString,QVariant)
@@ -178,15 +157,12 @@ void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
     switch(state)
     {
     case QMediaPlayer::PlayingState:
-        m_bottomWid->setPlayingStyle();
         m_fullScreenContrlWid->getControlWidget()->setPlayingStyle();
         break;
     case QMediaPlayer::PausedState:
-        m_bottomWid->setPauseStyle();
         m_fullScreenContrlWid->getControlWidget()->setPauseStyle();
         break;
     default:
-        m_bottomWid->setPauseStyle();
         m_fullScreenContrlWid->getControlWidget()->setPauseStyle();
         break;
     }
@@ -194,14 +170,17 @@ void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
 
 void VideoWidgets::slot_onCurrentMediaChanged(QMediaContent content)
 {
-    m_middleWid->getListWidget()->updatePlayingItemStyle(content);
-    m_topWid->setPlayingVideoName(content.canonicalUrl().fileName());
+    m_fullScreenContrlWid->getListWidget()->updatePlayingItemStyle(content);
+    m_fullScreenContrlWid->getTopWidget()->setPlayingVideoName(content.canonicalUrl().fileName());
 }
 
 void VideoWidgets::slot_onLocalListItemClick(int row, int)
 {
-    m_player->stop();
-    QUrl url= m_middleWid->getListWidget()->getVideoList()->getUrlAt(row);
+    if(m_mediaLoadThread && m_mediaLoadThread->isRunning()){
+        return;
+    }
+
+    QUrl url= m_fullScreenContrlWid->getListWidget()->getVideoList()->getUrlAt(row);
     if(m_player->isAvailable()){
 #ifndef DEVICE_EVB
         // check resolution is correct.
@@ -209,14 +188,21 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
-            slot_normalSizeStyle();
             setOriginState();
             box.exec();
             return;
         }
 #endif
-        m_player->setMedia(url);
-        m_player->play();
+        if(m_mediaLoadThread){
+            delete m_mediaLoadThread;
+            m_mediaLoadThread = NULL;
+        }
+
+        m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
+        m_mediaLoadThread->start();
+
+        m_fullScreenContrlWid->hidePlayList();
+        m_fullScreenContrlWid->slot_showControlView(true);
     }
 }
 
@@ -224,8 +210,8 @@ void VideoWidgets::sloat_tableLongPressed(int row){
     QMessageBox box(QMessageBox::Warning,"question","Sure you want to remove the record ?");
     box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
     if(box.exec() == QMessageBox::Yes){
-        m_middleWid->getListWidget()->deleteItem(row);
-        m_middleWid->getListWidget()->updatePlayingItemStyle(m_player->currentMedia());
+        m_fullScreenContrlWid->getListWidget()->deleteItem(row);
+        m_fullScreenContrlWid->getListWidget()->updatePlayingItemStyle(m_player->currentMedia());
     }
 }
 
@@ -239,15 +225,17 @@ void VideoWidgets::slot_setPlayPause()
             m_player->play();
         }
     }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
-    }
+
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
 }
 
 void VideoWidgets::slot_nextVideo(bool isEndofMedia)
 {
-    m_player->stop();
-    VideoList *playList = m_middleWid->getListWidget()->getVideoList();
+    if(m_mediaLoadThread && m_mediaLoadThread->isRunning()){
+        return;
+    }
+
+    VideoList *playList = m_fullScreenContrlWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
         QUrl url = playList->getNextVideoUrl();
 #ifndef DEVICE_EVB
@@ -256,24 +244,34 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
-            slot_normalSizeStyle();
             setOriginState();
             box.exec();
             return;
         }
 #endif
-        m_player->setMedia(url);
-        m_player->play();
+        if(m_mediaLoadThread){
+            delete m_mediaLoadThread;
+            m_mediaLoadThread = NULL;
+        }
+
+        m_fullScreenContrlWid->hidePlayList();
+        m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
+        m_mediaLoadThread->start();
+
+        if(!isEndofMedia){
+            m_fullScreenContrlWid->slot_showControlView(true);
+        }
     }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize && !isEndofMedia){
-        m_fullScreenContrlWid->slot_showControlView();
-    }
+
 }
 
 void VideoWidgets::slot_lastVideo()
 {
-    m_player->stop();
-    VideoList *playList = m_middleWid->getListWidget()->getVideoList();
+    if(m_mediaLoadThread && m_mediaLoadThread->isRunning()){
+        return;
+    }
+
+    VideoList *playList = m_fullScreenContrlWid->getListWidget()->getVideoList();
     if(m_player->isAvailable()){
         QUrl url = playList->getPreVideoUrl();
 #ifndef DEVICE_EVB
@@ -282,17 +280,21 @@ void VideoWidgets::slot_lastVideo()
             QMessageBox box(QMessageBox::Critical,"Video Format Error",
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
-            slot_normalSizeStyle();
             setOriginState();
             box.exec();
             return;
         }
 #endif
-        m_player->setMedia(url);
-        m_player->play();
-    }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
+        if(m_mediaLoadThread){
+            delete m_mediaLoadThread;
+            m_mediaLoadThread = NULL;
+        }
+
+        m_fullScreenContrlWid->hidePlayList();
+        m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
+        m_mediaLoadThread->start();
+
+        m_fullScreenContrlWid->slot_showControlView(true);
     }
 }
 
@@ -302,9 +304,8 @@ void VideoWidgets::slot_fastForward()
             m_player->state()==QMediaPlayer::PausedState){
         m_player->setPosition(m_player->position()+5000);
     }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
-    }
+
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
 }
 
 void VideoWidgets::slot_fastBackward()
@@ -313,63 +314,22 @@ void VideoWidgets::slot_fastBackward()
             m_player->state()==QMediaPlayer::PausedState){
         m_player->setPosition(m_player->position()-5000);
     }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
-    }
+
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
 }
 
-void VideoWidgets::slot_fullScreenStyle()
+void VideoWidgets::slot_resizePlayList()
 {
-    if(m_player->state()==QMediaPlayer::PlayingState||m_player->state()==QMediaPlayer::PausedState){
-        if(m_middleWid->getContentWidget()->getCurrentSizeState() == NormalSize){
-            // Save normal size of each moudle.
-            top_normal_height = m_topWid->height();
-            bottom_normal_height = m_bottomWid->height();
-            middle_list_width = m_middleWid->getListWidget()->width();
-            // Change each module's size to fix video surface.
-            m_topWid->setFixedHeight(0);
-            m_bottomWid->setFixedHeight(0);
-            m_middleWid->getListWidget()->setFixedWidth(0);
-
-            m_fullScreenContrlWid->slot_hideControlView();
-            m_middleWid->getContentWidget()->fullScreenStyle();
-            // Update playMode icon by 'videoList'
-            m_fullScreenContrlWid->getControlWidget()->updatePlayModeIcon(m_middleWid->getListWidget()->getVideoList()->getCurrentPlayMode());
-            m_stackedLayout->setCurrentIndex(1);
-        }
-    }
-    if(m_player->state() == QMediaPlayer::PausedState){
-        // Must be optimized ==========
-        m_player->play();
-        m_player->pause();
-    }
-}
-
-void VideoWidgets::slot_normalSizeStyle()
-{
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_topWid->setFixedHeight(top_normal_height);
-        m_bottomWid->setFixedHeight(bottom_normal_height);
-        m_middleWid->getListWidget()->setFixedWidth(middle_list_width);
-
-        m_middleWid->getContentWidget()->normalSizeStyle();
-        // Update playMode icon by 'videoList'
-        m_bottomWid->updatePlayModeIcon(m_middleWid->getListWidget()->getVideoList()->getCurrentPlayMode());
-        m_stackedLayout->setCurrentIndex(0);
-    }
-    if(m_player->state() == QMediaPlayer::PausedState){
-        // Must be optimized ==========
-        m_player->play();
-        m_player->pause();
-    }
+    m_fullScreenContrlWid->hideOrShowPlayList();
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
 }
 
 void VideoWidgets::slot_changePlayMode()
 {
-    VideoList *playList = m_middleWid->getListWidget()->getVideoList();
+    VideoList *playList = m_fullScreenContrlWid->getListWidget()->getVideoList();
     playList->changePlayMode();
-    m_bottomWid->updatePlayModeIcon(playList->getCurrentPlayMode());
     m_fullScreenContrlWid->getControlWidget()->updatePlayModeIcon(playList->getCurrentPlayMode());
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
 }
 
 void VideoWidgets::slot_refreshMediaResource()
@@ -387,7 +347,7 @@ void VideoWidgets::slot_refreshMediaResource()
                 appendSuffix=fileInfo.suffix();
             }
 
-            m_middleWid->getListWidget()->addRefreshSuffix(appendSuffix);
+            m_fullScreenContrlWid->getListWidget()->addRefreshSuffix(appendSuffix);
         }
         mainWindow->slot_updateMedia();
     }
@@ -395,13 +355,11 @@ void VideoWidgets::slot_refreshMediaResource()
 
 void VideoWidgets::slot_onDurationChanged(qint64 duration)
 {
-    m_middleWid->getContentWidget()->onDurationChanged(duration);
     m_fullScreenContrlWid->getPositionWidget()->onDurationChanged(duration);
 }
 
 void VideoWidgets::slot_onMediaPositionChanged(qint64 position)
 {
-    m_middleWid->getContentWidget()->onMediaPositionChanged(position);
     m_fullScreenContrlWid->getPositionWidget()->onMediaPositionChanged(position);
 }
 
@@ -409,29 +367,20 @@ void VideoWidgets::slot_onSliderPositionChanged(int position)
 {
     if(position >= 0){
         m_player->setPosition(position);
-        if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-            m_fullScreenContrlWid->slot_showControlView();
-        }
-    }
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
+        m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
     }
 }
 
 void VideoWidgets::slot_addVideo()
 {
-    m_middleWid->getListWidget()->addVideo();
+    m_fullScreenContrlWid->getListWidget()->addVideo();
 }
 
 void VideoWidgets::slot_volumeChanged(int value)
 {
     m_player->setVolume(value);
     m_fullScreenContrlWid->getControlWidget()->updateVolumeSliderValue(m_player->volume());
-    m_bottomWid->updateVolumeSliderValue(m_player->volume());
-
-    if(m_middleWid->getContentWidget()->getCurrentSizeState() == FullScreenSize){
-        m_fullScreenContrlWid->slot_showControlView();
-    }
+    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
     saveVolume(value);
 }
 
@@ -458,7 +407,7 @@ void VideoWidgets::savaSetting()
 {
     QSettings setting("config.ini",QSettings::IniFormat,0);
     setting.beginGroup("videoConfig");
-    setting.setValue("playmode",(int)m_middleWid->getListWidget()->getVideoList()->getPlayMode());
+    setting.setValue("playmode",(int)m_fullScreenContrlWid->getListWidget()->getVideoList()->getPlayMode());
     setting.endGroup();
 
     m_player->pause();
@@ -489,11 +438,29 @@ void VideoWidgets::updateVolume(bool volumeAdd)
             m_player->setVolume(0);
         }
     }
-    m_bottomWid->updateVolumeSliderValue(m_player->volume());
     m_fullScreenContrlWid->getControlWidget()->updateVolumeSliderValue(m_player->volume());
     saveVolume(m_player->volume());
 }
 
 VideoWidgets::~VideoWidgets()
 {
+}
+
+MediaLoadThread::MediaLoadThread(QObject *parent, QMediaPlayer *player,QUrl url):QThread(parent)
+{
+    this->player = player;
+    this->loadUrl = url;
+}
+
+MediaLoadThread::~MediaLoadThread()
+{
+    requestInterruption();
+    quit();
+    wait();
+}
+
+void MediaLoadThread::run()
+{
+    player->setMedia(loadUrl);
+    player->play();
 }

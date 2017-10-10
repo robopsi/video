@@ -1,10 +1,8 @@
 #include "videolistwidgets.h"
 
-#include <QHeaderView>
 #include <QDir>
 #include <QTime>
 #include <QFileDialog>
-#include <QEventLoop>
 #include <QMediaPlayer>
 #include <QDirIterator>
 #include <QFile>
@@ -16,8 +14,6 @@ VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
     //Set background color.
     setObjectName("VideoListWidgets");
     setStyleSheet("#VideoListWidgets{background:rgb(43,45,51)}");
-    // Initialize video play list.
-    m_playList = new VideoList(this);
 
     initData();
     initLayout();
@@ -26,6 +22,9 @@ VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
 
 void VideoListWidgets::initData()
 {
+    // Initialize video play list.
+    m_playList = new VideoList(this);
+
     m_refreshSuffixList.append("mp4");
     m_refreshSuffixList.append("avi");
     m_refreshSuffixList.append("rm");

@@ -26,5 +26,6 @@
         <file>image/video/btn_single.png</file>
         <file>image/video/btn_volume_off.png</file>
         <file>image/video/btn_volume_on.png</file>
+        <file>image/video/btn_play_list.png</file>
     </qresource>
 </RCC>

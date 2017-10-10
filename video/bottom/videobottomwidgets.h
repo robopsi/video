@@ -15,7 +15,7 @@ class VideoBottomWidgets:public BaseWidget
 {
     Q_OBJECT
 public:
-    VideoBottomWidgets(QWidget *parent=0,bool fullScreenStyle = false);
+    VideoBottomWidgets(QWidget *parent=0);
     ~VideoBottomWidgets();
 
     void setPlayingStyle();
@@ -31,9 +31,9 @@ private:
     FlatButton *m_btnChangeSize;
     FlatButton *m_btnRefresh;
     FlatButton *m_btnPlayMode;
+    FlatButton *m_btnPlayList;
 
     FullScreenControlWidgets *m_parent;
-    bool isFullScreenStyle;
 
     void initLayout();
     void initConnection();
@@ -50,6 +50,7 @@ signals:
     void playModeClick();
     void refreshClick();
     void changeSizeClick();
+    void playListClick();
 };
 
 #endif // VIDEOBOTTOMWIDGETS_H

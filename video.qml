@@ -24,17 +24,8 @@ Rectangle {
         id: videoContent
         objectName: qsTr("videoContent")
         anchors.fill: parent
-        anchors.topMargin: 70
+        anchors.topMargin: 0
         source: mediaPlayer
-
-        function setFullScreen(isFullScreen)
-        {
-            if(isFullScreen){
-                videoContent.anchors.topMargin = 0;
-            }else{
-                videoContent.anchors.topMargin = 70;
-            }
-        }
     }
 }
 

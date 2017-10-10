@@ -11,14 +11,9 @@ class VideoQuickContentWidget:public QQuickWidget
 public:
     VideoQuickContentWidget(QWidget *parent = 0);
 
-    void setFullScreen(bool fullScreen);
-    bool isFullScreenSize(){return isFullScreen;}
 private:
-    int normalWidth;
-    int normalHeight;
     void init();
 
-    bool isFullScreen;
     QTimer *m_timer;
 protected:
     void mousePressEvent(QMouseEvent *event);

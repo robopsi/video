@@ -4,15 +4,14 @@
 #include <QObject>
 #include <QMediaPlayer>
 #include <QVideoWidget>
-#include <QStackedLayout>
+#include <QThread>
 
 #include "basepushbutton.h"
 #include "basewidget.h"
-#include "top/videotopwidgets.h"
-#include "middle/videomiddlewidgets.h"
-#include "bottom/videobottomwidgets.h"
-#include "middle/videocontentwidget.h"
+#include "middle/videocontentwidgets.h"
 #include "fullscreencontrolwidgets.h"
+
+class MediaLoadThread;
 
 /**
  * The main layout of video widgets.It is made up of 3 positional widgets.
@@ -35,20 +34,18 @@ public:
     QFileInfoList findAllVideoFiles(const QString &serachPath);
     void updateUiByRes(QFileInfoList);
 public:
-    VideoMiddleWidgets *m_middleWid;
-    VideoBottomWidgets *m_bottomWid;
-    VideoTopWidgets *m_topWid;
+    VideoContentWidgets *m_contentWid;
 private:
     // Save normal size of each moudle.
     int top_normal_height;
     int bottom_normal_height;
-    int middle_list_width;
 
     QMediaPlayer *m_player;
     QUrl m_onPlayUrl;
 
-    QStackedLayout *m_stackedLayout;
     FullScreenControlWidgets *m_fullScreenContrlWid;
+
+    MediaLoadThread *m_mediaLoadThread;
 
     void initLayout();
     void initPlayerAndConnection();
@@ -73,15 +70,29 @@ private slots:
     void slot_volumeChanged(int);
     void slot_exit();
     void slot_refreshMediaResource();
-    void slot_fullScreenStyle();
-    void slot_normalSizeStyle();
     void slot_changePlayMode();
     void slot_fastForward();
     void slot_fastBackward();
+    void slot_resizePlayList();
 
     void slot_onErrorOn(QMediaPlayer::Error);
 
     void sloat_tableLongPressed(int);
+};
+
+class MediaLoadThread: public QThread
+{
+public:
+    MediaLoadThread(QObject *parent, QMediaPlayer *player, QUrl url);
+    ~MediaLoadThread();
+
+protected:
+    void run();
+
+private:
+    QMediaPlayer *player;
+    QUrl loadUrl;
+
 };
 
 #endif // VIDEOWIDGETS_H

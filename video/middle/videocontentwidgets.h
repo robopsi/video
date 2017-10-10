@@ -5,18 +5,11 @@
 #include "videocontentwidget.h"
 #include "videoslider.h"
 #include "videoquickcontentwidget.h"
-#include "videopositionwidget.h"
 
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QQuickWidget>
 #include <QMediaPlayer>
-
-enum CurrentSizeState
-{
-    FullScreenSize,
-    NormalSize
-};
 
 /**
  * Manager video content widgets.
@@ -31,32 +24,20 @@ public:
     VideoContentWidgets(QWidget *parent);
     ~VideoContentWidgets();
 public:
-    void addPositionWidget();
-    void removePositionWidget();
-    void onDurationChanged(qint64 duration);
-    void onMediaPositionChanged(qint64);
     QMediaPlayer* getMediaPlayerFormQml(){return m_player;}
     VideoQuickContentWidget* getSurfaceWid(){return m_surfaceWid;}
-    CurrentSizeState getCurrentSizeState(){return m_currentSizeState;}
-    void fullScreenStyle();
-    void normalSizeStyle();
 private:
     QVBoxLayout *m_layout;
     // QMediaPlayer will deliver to 'videoWidets' for global control,
     // so it is no actual use in here.
     QMediaPlayer *m_player;
-
     VideoQuickContentWidget *m_surfaceWid;
-    VideoPositionWidget *m_positionWid;
-
-    CurrentSizeState m_currentSizeState;
 
     void initLayout();
     void initConnection();
 signals:
     void surfaceOneClick();
     void surfaceDoubleClick();
-    void sig_sliderPositionChanged(int);
 };
 
 #endif // VIDEOMIDDLEWIDGETLEFT_H
