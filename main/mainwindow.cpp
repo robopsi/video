@@ -15,10 +15,8 @@ void MainWindow::initData()
     mainWindow = this;
     // Start media source update thread.
     // Uevent for usb and inotify for file modify.
-    ueventThread = new UeventThread(this);
-    ueventThread->start();
-    inotifyThread = new InotifyThread(this);
-    inotifyThread->start();
+
+    m_notificationReceiver.receive();
 }
 
 void MainWindow::initLayout(){
@@ -36,6 +34,7 @@ void MainWindow::initConnection()
     // Update media resource when receive signals from 'uevent' or 'inotify'.
     connect(this,SIGNAL(beginUpdateMediaResource()),this,SLOT(slot_setUpdateFlag()));
     connect(this,SIGNAL(updateUiByRes(QFileInfoList)),this,SLOT(slot_updateUiByRes(QFileInfoList)));
+    connect(&m_notificationReceiver,SIGNAL(mediaNotification(MediaNotification*)),this,SLOT(slot_setUpdateFlag()));
 }
 
 void MainWindow::slot_setUpdateFlag()

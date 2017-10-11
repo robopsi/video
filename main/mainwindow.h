@@ -8,8 +8,7 @@
 #include <base/basewindow.h>
 #include <QThread>
 
-#include "ueventthread.h"
-#include "inotifythread.h"
+#include "MediaNotificationReceiver.h"
 
 /**
  * The main window of application.
@@ -34,8 +33,7 @@ private:
     bool mediaHasUpdate;
     VideoWidgets *m_videoWid;
     // Thread for media resource update.
-    UeventThread *ueventThread;
-    InotifyThread *inotifyThread;
+    MediaNotificationReceiver m_notificationReceiver;
 private:
     void initData();
     void initLayout();

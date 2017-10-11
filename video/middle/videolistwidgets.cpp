@@ -6,7 +6,7 @@
 #include <QMediaPlayer>
 #include <QDirIterator>
 #include <QFile>
-
+#include <QThread>
 #include "global_value.h"
 
 VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
@@ -102,7 +102,7 @@ QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
     QFileInfoList videoFiles;
 
     QDirIterator it(path,QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
-    while (it.hasNext()){
+    while (!QThread::currentThread()->isInterruptionRequested()&&it.hasNext()){
         QString name = it.next();
         QFileInfo info(name);
         if (info.isDir()){
