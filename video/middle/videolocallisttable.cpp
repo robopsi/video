@@ -130,4 +130,3 @@ void VideoLocalListTable::resizeEvent(QResizeEvent *event)
 #endif
     QTableWidget::resizeEvent(event);
 }
-

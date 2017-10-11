@@ -29,6 +29,7 @@ private:
 protected:
     void leaveEvent(QEvent *event);
     void resizeEvent(QResizeEvent*);
+
 private slots:
     void slot_cellEnter(int,int);
 };

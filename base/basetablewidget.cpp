@@ -2,6 +2,7 @@
 
 #include <QHeaderView>
 #include <QScrollBar>
+#include "focusswitchmanager.h"
 
 QLineDelegate::QLineDelegate(QTableView* tableView)
 {
@@ -132,4 +133,55 @@ void BaseTableWidget::mouseMoveEvent(QMouseEvent *event)
     }
 EXIT:
     mutex.unlock();
+}
+
+void BaseTableWidget::focusInEvent(QFocusEvent *event)
+{
+    QTableWidget::focusInEvent(event);
+    if (rowCount() > 0) {
+        setCurrentCell(0,0);
+    }
+}
+
+void BaseTableWidget::focusOutEvent(QFocusEvent *event)
+{
+    QTableWidget::focusOutEvent(event);
+    if (rowCount() > 0) {
+        setCurrentCell(-1,-1);
+    }
+}
+
+void BaseTableWidget::keyPressEvent(QKeyEvent *event)
+{
+    bool rangeOutSide = false;
+
+    switch (event->key()) {
+    case Qt::Key_Down:
+        qDebug("Table: Key_Down");
+        if (currentRow()-1 >= 0) {
+            setCurrentCell(currentRow()-1, 0);
+        } else {
+            rangeOutSide = true;
+        }
+        break;
+    case Qt::Key_Up:
+        qDebug("Table: Key_Up");
+        if (rowCount() > currentRow()+1) {
+            setCurrentCell(currentRow()+1, 0);
+        } else {
+            rangeOutSide = true;
+        }
+        break;
+    case Qt::Key_Enter:
+        qDebug("Table: Key_Enter");
+        emit cellClicked(currentRow(), 0);
+        break;
+    default:
+        break;
+    }
+
+    if (rangeOutSide) {
+        QTableWidget::keyPressEvent(event);
+    }
+
 }

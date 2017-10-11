@@ -7,6 +7,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QThread>
+#include "focusswitchmanager.h"
 #include "global_value.h"
 
 VideoListWidgets::VideoListWidgets(QWidget *parent):BaseWidget(parent)
@@ -58,6 +59,8 @@ void VideoListWidgets::initLayout()
     m_stackedWid = new QStackedWidget(this);
     m_localTable = new VideoLocalListTable(m_stackedWid);
     m_netTable = new VideoNetListTable(m_stackedWid);
+
+    FocusSwitchManager::getInstance()->insertIntoMap("2,1", m_localTable);
 
     m_stackedWid->addWidget(m_localTable);
     m_stackedWid->addWidget(m_netTable);

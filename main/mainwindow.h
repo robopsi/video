@@ -46,7 +46,6 @@ private slots:
     void slot_setUpdateFlag();
     void slot_updateUiByRes(QFileInfoList videoFileList);
 
-    void slot_standby();
 signals:
     void beginUpdateMediaResource();
     void updateUiByRes(QFileInfoList videoFileList);

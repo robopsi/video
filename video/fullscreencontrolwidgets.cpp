@@ -60,15 +60,18 @@ void FullScreenControlWidgets::slot_hideControlView()
 void FullScreenControlWidgets::slot_showControlView(bool mediaOn)
 {
     m_mediaOn = mediaOn;
+
     if(!m_controlWid->isVisible()){
         m_topWid->setVisible(true);
         m_controlWid->setVisible(true);
     }
 
-    m_timer->stop();
     if(mediaOn){
-        m_timer->start(5000);
+        restartHideTimer();
         m_positionWid->setVisible(true);
+    }else{
+        m_timer->stop();
+        m_positionWid->setVisible(false);
     }
 }
 
@@ -87,11 +90,6 @@ void FullScreenControlWidgets::showPlayList()
     m_listWid->setVisible(true);
 }
 
-void FullScreenControlWidgets::addPositionWidget()
-{
-    m_positionWid->setVisible(true);
-}
-
 void FullScreenControlWidgets::hideOrShowPlayList()
 {
     if(m_listWid->isVisible()){
@@ -101,10 +99,12 @@ void FullScreenControlWidgets::hideOrShowPlayList()
     }
 }
 
-void FullScreenControlWidgets::stopHideTimer()
+void FullScreenControlWidgets::restartHideTimer()
 {
-    m_mediaOn = false;
-    m_timer->stop();
+    if(m_mediaOn){
+        m_timer->stop();
+        m_timer->start(5000);
+    }
 }
 
 void FullScreenControlWidgets::mousePressEvent(QMouseEvent *e)

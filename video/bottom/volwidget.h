@@ -6,8 +6,9 @@
 #include <QWidget>
 #include <QObject>
 #include "basepushbutton.h"
+#include "basewidget.h"
 
-class VolWidget: public QWidget
+class VolWidget: public BaseWidget
 {
     Q_OBJECT
 public:
@@ -27,6 +28,7 @@ private:
 private slots:
     void slot_onIconClick();
     void slot_onSliderValueChanged(int);
+
 signals:
     void sig_valueChanged(int);
 };

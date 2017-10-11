@@ -27,11 +27,10 @@ public:
     VideoListWidgets* getListWidget(){return m_listWid;}
 
     void removePositionWidget();
-    void addPositionWidget();
     void hidePlayList();
     void showPlayList();
     void hideOrShowPlayList();
-    void stopHideTimer();
+    void restartHideTimer();
 private:
     // Hide control Widget if 3 seconds pass and no more action.
     QTimer *m_timer;

@@ -1,5 +1,6 @@
 #include "videotopwidgets.h"
 #include "global_value.h"
+#include "focusswitchmanager.h"
 
 VideoTopWidgets::VideoTopWidgets(QWidget *parent):BaseWidget(parent)
 {
@@ -17,6 +18,8 @@ void VideoTopWidgets::initLayout()
 
     m_btnreturn=new FourStateButton(return_resource_str,this);
     m_btnreturn->setFixedSize(return_icon_width,return_icon_height);
+
+    FocusSwitchManager::getInstance()->insertIntoMap("1,1",m_btnreturn);
 
     QHBoxLayout *lyout1 = new QHBoxLayout;
     lyout1->addWidget(m_btnreturn);

@@ -20,18 +20,18 @@ void FlatButton::slot_timerTimeout()
     emit longPressedEvent();
 }
 
-void FlatButton::mousePressEvent(QMouseEvent *e)
+void FlatButton::mousePressEvent(QMouseEvent *event)
 {
-    QPushButton::mousePressEvent(e);
+    QPushButton::mousePressEvent(event);
     m_timer->start(1000);
 }
 
-void FlatButton::mouseReleaseEvent(QMouseEvent *e)
+void FlatButton::mouseReleaseEvent(QMouseEvent *event)
 {
     if(longPressedFlag){
-        e->accept();
+        event->accept();
     }else{
-        QPushButton::mouseReleaseEvent(e);
+        QPushButton::mouseReleaseEvent(event);
     }
     m_timer->stop();
     longPressedFlag = false;
@@ -211,7 +211,7 @@ void FourStateButton::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.drawPixmap((width()-m_pixlist.at(m_index).width())/2,(height()-m_pixlist.at(m_index).height())/2
                        ,m_pixlist.at(m_index).width()
-                       ,m_pixlist.at(m_index).height(),m_pixlist.at(m_index));//画图画到中间
+                       ,m_pixlist.at(m_index).height(),m_pixlist.at(m_index));
 }
 
 void FourStateButton::enterEvent(QEvent *)

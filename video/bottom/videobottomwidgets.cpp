@@ -1,5 +1,7 @@
 #include "videobottomwidgets.h"
 
+#include "focusswitchmanager.h"
+
 #ifdef DEVICE_EVB
 int video_bottom_height  = 160;
 int video_playButton_size = 100;
@@ -9,7 +11,7 @@ int layout_temp = 25;
 #else
 int video_bottom_height  = 70;
 int video_playButton_size = 50;
-int refresh_playmode_size = 40;
+int refresh_playmode_size = 45;
 int change_surface_size = 35;
 int layout_temp = 10;
 #endif
@@ -45,83 +47,33 @@ void VideoBottomWidgets::initLayout()
     m_btnRefresh->setVisible(false);
     m_btnChangeSize->setVisible(false);
 
+//    FocusSwitchManager::getInstance()->insertIntoMap("1,1",m_VolWidget);
+    FocusSwitchManager::getInstance()->insertIntoMap("3,2",m_btnLast);
+    FocusSwitchManager::getInstance()->insertIntoMap("3,3",m_btnPlayPause);
+    FocusSwitchManager::getInstance()->insertIntoMap("3,4",m_btnNext);
+    FocusSwitchManager::getInstance()->insertIntoMap("3,5",m_btnPlayMode);
+    FocusSwitchManager::getInstance()->insertIntoMap("3,6",m_btnPlayList);
+
     m_btnPlayPause->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnNext->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnLast->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnOpenFile->setFixedSize(video_playButton_size,video_playButton_size);
     m_btnChangeSize->setFixedSize(change_surface_size,change_surface_size);
     m_btnRefresh->setFixedSize(refresh_playmode_size,refresh_playmode_size);
-    m_btnPlayMode->setFixedSize(refresh_playmode_size,refresh_playmode_size-layout_temp);
+    m_btnPlayMode->setFixedSize(refresh_playmode_size,refresh_playmode_size);
     m_btnPlayList->setFixedSize(refresh_playmode_size,refresh_playmode_size);
 
     m_btnNext->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_next (1).png);}"
-                             "QPushButton::hover{border-image:url(:/image/video/btn_next (2).png);}\
-                             QPushButton:pressed\
-                             {\
-                                 background-color:rgb(204 , 228 , 247);\
-                                 border: 1px solid rgb(1 , 84 , 153);\
-                                 padding-left:3px;\
-                                 padding-top:3px;\
-                             }");
+                             "QPushButton::hover{border-image:url(:/image/video/btn_next (2).png);}");
     m_btnLast->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_previous (1).png);}"
-                             "QPushButton::hover{border-image:url(:/image/video/btn_previous (2).png);}\
-                             QPushButton:pressed\
-                             {\
-                                 background-color:rgb(204 , 228 , 247);\
-                                 border: 1px solid rgb(1 , 84 , 153);\
-                                 padding-left:3px;\
-                                 padding-top:3px;\
-                             }");
+                             "QPushButton::hover{border-image:url(:/image/video/btn_previous (2).png);}");
     m_btnPlayPause->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_play (1).png);}"
-                                  "QPushButton::hover{border-image:url(:/image/video/btn_play (2).png);}\
-                                  QPushButton:pressed\
-                                  {\
-                                      background-color:rgb(204 , 228 , 247);\
-                                      border: 1px solid rgb(1 , 84 , 153);\
-                                      padding-left:3px;\
-                                      padding-top:3px;\
-                                  }");
-    m_btnOpenFile->setStyleSheet("QPushButton{border-image:url(:/image/video/video_open_file.png);}\
-                                 QPushButton:pressed\
-                                 {\
-                                     background-color:rgb(204 , 228 , 247);\
-                                     border: 1px solid rgb(1 , 84 , 153);\
-                                     padding-left:3px;\
-                                     padding-top:3px;\
-                                 }");
-    m_btnChangeSize->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_fullscreen.png);}\
-                                   QPushButton:pressed\
-                                   {\
-                                       background-color:rgb(204 , 228 , 247);\
-                                       border: 1px solid rgb(1 , 84 , 153);\
-                                       padding-left:3px;\
-                                       padding-top:3px;\
-                                   }");
-    m_btnRefresh->setStyleSheet("QPushButton{border-image:url(:/image/video/video_refresh.png);}\
-                                QPushButton:pressed\
-                                {\
-                                    background-color:rgb(204 , 228 , 247);\
-                                    border: 1px solid rgb(1 , 84 , 153);\
-                                    padding-left:3px;\
-                                    padding-top:3px;\
-                                }");
-    m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}\
-                                 QPushButton:pressed\
-                                 {\
-                                     background-color:rgb(204 , 228 , 247);\
-                                     border: 1px solid rgb(1 , 84 , 153);\
-                                     padding-left:3px;\
-                                     padding-top:3px;\
-                                 }");
-    m_btnPlayList->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_play_list.png);}\
-                                 QPushButton:pressed\
-                                 {\
-                                     background-color:rgb(204 , 228 , 247);\
-                                     border: 1px solid rgb(1 , 84 , 153);\
-                                     padding-left:3px;\
-                                     padding-top:3px;\
-                                 }");
-
+                                  "QPushButton::hover{border-image:url(:/image/video/btn_play (2).png);}");
+    m_btnOpenFile->setStyleSheet("QPushButton{border-image:url(:/image/video/video_open_file.png);}");
+    m_btnChangeSize->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_fullscreen.png);}");
+    m_btnRefresh->setStyleSheet("QPushButton{border-image:url(:/image/video/video_refresh.png);}");
+    m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}");
+    m_btnPlayList->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_play_list.png);}");
 
     QHBoxLayout *hlyout1 = new QHBoxLayout;
     hlyout1->addStretch(0);
@@ -169,69 +121,34 @@ void VideoBottomWidgets::initConnection()
 void VideoBottomWidgets::setPlayingStyle()
 {
     m_btnPlayPause->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_pause (1).png);}"
-                                  "QPushButton::hover{border-image:url(:/image/video/btn_pause (2).png);}\
-                                  QPushButton:pressed\
-                                  {\
-                                      background-color:rgb(204 , 228 , 247);\
-                                      border: 1px solid rgb(1 , 84 , 153);\
-                                      padding-left:3px;\
-                                      padding-top:3px;\
-                                  }");
+                                  "QPushButton::hover{border-image:url(:/image/video/btn_pause (2).png);}");
 
 }
 
 void VideoBottomWidgets::setPauseStyle()
 {
     m_btnPlayPause->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_play (1).png);}"
-                                  "QPushButton::hover{border-image:url(:/image/video/btn_play (2).png);}\
-                                  QPushButton:pressed\
-                                  {\
-                                      background-color:rgb(204 , 228 , 247);\
-                                      border: 1px solid rgb(1 , 84 , 153);\
-                                      padding-left:3px;\
-                                      padding-top:3px;\
-                                  }");
+                                  "QPushButton::hover{border-image:url(:/image/video/btn_play (2).png);}");
 }
 
 void VideoBottomWidgets::updatePlayModeIcon(PlayMode playMode)
 {
     switch(playMode){
     case PlayRandom:
-        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_random.png);}\
-                                     QPushButton:pressed\
-                                     {\
-                                         background-color:rgb(204 , 228 , 247);\
-                                         border: 1px solid rgb(1 , 84 , 153);\
-                                         padding-left:3px;\
-                                         padding-top:3px;\
-                                     }");
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_random.png);}");
         break;
     case PlayOneCircle:
-        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_single.png);}\
-                                     QPushButton:pressed\
-                                     {\
-                                         background-color:rgb(204 , 228 , 247);\
-                                         border: 1px solid rgb(1 , 84 , 153);\
-                                         padding-left:3px;\
-                                         padding-top:3px;\
-                                     }");
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_single.png);}");
         break;
     case PlayInOrder:
-        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}\
-                                     QPushButton:pressed\
-                                     {\
-                                         background-color:rgb(204 , 228 , 247);\
-                                         border: 1px solid rgb(1 , 84 , 153);\
-                                         padding-left:3px;\
-                                         padding-top:3px;\
-                                     }");
+        m_btnPlayMode->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_list.png);}");
         break;
     }
 }
 
 void VideoBottomWidgets::mousePressEvent(QMouseEvent *)
 {
-    m_parent->slot_showControlView();
+    m_parent->restartHideTimer();
 }
 
 void VideoBottomWidgets::updateVolumeSliderValue(int value)

@@ -6,7 +6,6 @@
 #include <QDir>
 #include <QInputDialog>
 #include <QMediaMetaData>
-#include <QDateTime>
 
 #include "player/videoinfoutil.h"
 #include "player/videolist.h"
@@ -55,11 +54,10 @@ void VideoWidgets::readSetting()
 
 void VideoWidgets::setOriginState()
 {
+    m_fullScreenContrlWid->slot_showControlView(false);
     m_fullScreenContrlWid->getTopWidget()->setPlayingVideoName(str_videoName_default);
-    m_fullScreenContrlWid->removePositionWidget();
     m_fullScreenContrlWid->showPlayList();
     m_fullScreenContrlWid->getListWidget()->setOriginState();
-    m_fullScreenContrlWid->stopHideTimer();
 }
 
 void VideoWidgets::initLayout()
@@ -122,6 +120,11 @@ QFileInfoList VideoWidgets::findAllVideoFiles(const QString &serachPath)
     return m_fullScreenContrlWid->getListWidget()->findVideoFiles(serachPath);
 }
 
+void VideoWidgets::showControlView()
+{
+    m_fullScreenContrlWid->slot_showControlView(m_player->state() != QMediaPlayer::StoppedState);
+}
+
 void VideoWidgets::updateUiByRes(QFileInfoList fileInfoList)
 {
     m_fullScreenContrlWid->getListWidget()->updateResUi(fileInfoList);
@@ -133,8 +136,12 @@ void VideoWidgets::updateUiByRes(QFileInfoList fileInfoList)
 void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
 {
     setOriginState();
-    QMessageBox::critical(mainWindow,"Video Error","It has encountered an error.",
-                          QMessageBox::Yes | QMessageBox::Yes);
+
+    QMessageBox *messageBox = new QMessageBox(QMessageBox::Critical, "Video Error",
+                                              "It has encountered an error.", QMessageBox::Yes, mainWindow);
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    QTimer::singleShot(2500, messageBox, SLOT(close()));
+    messageBox->exec();
 }
 
 void VideoWidgets::slot_onMetaDataChanged(QString,QVariant)
@@ -189,6 +196,7 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
             setOriginState();
+            QTimer::singleShot(2500, &box, SLOT(close()));
             box.exec();
             return;
         }
@@ -226,7 +234,7 @@ void VideoWidgets::slot_setPlayPause()
         }
     }
 
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
 }
 
 void VideoWidgets::slot_nextVideo(bool isEndofMedia)
@@ -245,6 +253,7 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
             setOriginState();
+            QTimer::singleShot(2500, &box, SLOT(close()));
             box.exec();
             return;
         }
@@ -267,6 +276,7 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
 
 void VideoWidgets::slot_lastVideo()
 {
+    qDebug("last video..");
     if(m_mediaLoadThread && m_mediaLoadThread->isRunning()){
         return;
     }
@@ -281,6 +291,7 @@ void VideoWidgets::slot_lastVideo()
                             "video resolution not support.",QMessageBox::Yes);
             m_player->setMedia(NULL);
             setOriginState();
+            QTimer::singleShot(2500, &box, SLOT(close()));
             box.exec();
             return;
         }
@@ -300,28 +311,28 @@ void VideoWidgets::slot_lastVideo()
 
 void VideoWidgets::slot_fastForward()
 {
-    if(m_player->state()==QMediaPlayer::PlayingState||
-            m_player->state()==QMediaPlayer::PausedState){
+    if (m_player->state() == QMediaPlayer::PlayingState ||
+            m_player->state() == QMediaPlayer::PausedState) {
         m_player->setPosition(m_player->position()+5000);
     }
 
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
 }
 
 void VideoWidgets::slot_fastBackward()
 {
-    if(m_player->state()==QMediaPlayer::PlayingState||
-            m_player->state()==QMediaPlayer::PausedState){
+    if (m_player->state() == QMediaPlayer::PlayingState ||
+            m_player->state() == QMediaPlayer::PausedState) {
         m_player->setPosition(m_player->position()-5000);
     }
 
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
 }
 
 void VideoWidgets::slot_resizePlayList()
 {
     m_fullScreenContrlWid->hideOrShowPlayList();
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
 }
 
 void VideoWidgets::slot_changePlayMode()
@@ -329,7 +340,7 @@ void VideoWidgets::slot_changePlayMode()
     VideoList *playList = m_fullScreenContrlWid->getListWidget()->getVideoList();
     playList->changePlayMode();
     m_fullScreenContrlWid->getControlWidget()->updatePlayModeIcon(playList->getCurrentPlayMode());
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
 }
 
 void VideoWidgets::slot_refreshMediaResource()
@@ -367,7 +378,7 @@ void VideoWidgets::slot_onSliderPositionChanged(int position)
 {
     if(position >= 0){
         m_player->setPosition(position);
-        m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+        m_fullScreenContrlWid->restartHideTimer();
     }
 }
 
@@ -380,10 +391,9 @@ void VideoWidgets::slot_volumeChanged(int value)
 {
     m_player->setVolume(value);
     m_fullScreenContrlWid->getControlWidget()->updateVolumeSliderValue(m_player->volume());
-    m_fullScreenContrlWid->slot_showControlView(m_player->state()!=QMediaPlayer::StoppedState);
+    m_fullScreenContrlWid->restartHideTimer();
     saveVolume(value);
 }
-
 
 void VideoWidgets::saveVolume(int volume){
 
@@ -446,7 +456,7 @@ VideoWidgets::~VideoWidgets()
 {
 }
 
-MediaLoadThread::MediaLoadThread(QObject *parent, QMediaPlayer *player,QUrl url):QThread(parent)
+MediaLoadThread::MediaLoadThread(QObject *parent, QMediaPlayer *player, QUrl url):QThread(parent)
 {
     this->player = player;
     this->loadUrl = url;

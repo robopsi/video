@@ -1,4 +1,5 @@
 #include "volwidget.h"
+#include "focusswitchmanager.h"
 
 #include <QHBoxLayout>
 
@@ -7,12 +8,12 @@ int volume_icon_size = 70;
 int volume_slider_width = 160;
 int volume_slider_height = 20;
 #else
-int volume_icon_size = 40;
+int volume_icon_size = 45;
 int volume_slider_width = 120;
 int volume_slider_height = 20;
 #endif
 
-VolWidget::VolWidget(QWidget *parent):QWidget(parent)
+VolWidget::VolWidget(QWidget *parent):BaseWidget(parent)
   ,isMute(false)
 {
     init();
@@ -23,18 +24,14 @@ void VolWidget::init()
     QHBoxLayout *layout = new QHBoxLayout;
 
     m_volSlider = new BaseSlider(Qt::Horizontal,this);
+    m_volSlider->setFocusPolicy(Qt::NoFocus);
     m_volSlider->setFixedSize(volume_slider_width,volume_slider_height);
 
     m_btnIcon = new FlatButton(this);
     m_btnIcon->setFixedSize(volume_icon_size,volume_icon_size);
-    m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}\
-                             QPushButton:pressed\
-                             {\
-                                 background-color:rgb(204 , 228 , 247);\
-                                 border: 1px solid rgb(1 , 84 , 153);\
-                                 padding-left:3px;\
-                                 padding-top:3px;\
-                             }");
+    m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}");
+
+    FocusSwitchManager::getInstance()->insertIntoMap("3,1",m_btnIcon);
 
     layout->addWidget(m_btnIcon,0,Qt::AlignRight|Qt::AlignVCenter);
     layout->addWidget(m_volSlider,0,Qt::AlignLeft|Qt::AlignVCenter);
@@ -50,24 +47,10 @@ void VolWidget::updateIconBySliderValue(int value)
 {
     if(value == 0){
         isMute = true;
-        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_off.png);}\
-                                 QPushButton:pressed\
-                                 {\
-                                     background-color:rgb(204 , 228 , 247);\
-                                     border: 1px solid rgb(1 , 84 , 153);\
-                                     padding-left:3px;\
-                                     padding-top:3px;\
-                                 }");
+        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_off.png);}");
     }else{
         isMute = false;
-        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}\
-                                 QPushButton:pressed\
-                                 {\
-                                     background-color:rgb(204 , 228 , 247);\
-                                     border: 1px solid rgb(1 , 84 , 153);\
-                                     padding-left:3px;\
-                                     padding-top:3px;\
-                                 }");
+        m_btnIcon->setStyleSheet("QPushButton{border-image:url(:/image/video/btn_volume_on.png);}");
     }
 }
 

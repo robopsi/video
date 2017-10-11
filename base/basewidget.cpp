@@ -5,6 +5,9 @@
 BaseWidget::BaseWidget(QWidget *parent) : QWidget(parent)
 {
     setMouseTracking(true);
+
+    setStyleSheet("QPushButton:hover, QPushButton:focus{background: rgb(150,150,150);}"
+                  "QPushButton::pressed{background-color:rgb(204,228,247);border: 1px solid rgb(1 , 84 , 153);padding-left:3px;padding-top:3px;}");
 }
 
 void BaseWidget::paintEvent(QPaintEvent *)

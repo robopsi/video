@@ -33,6 +33,8 @@ public:
     void setPlayerPause(){m_player->pause();}
     QFileInfoList findAllVideoFiles(const QString &serachPath);
     void updateUiByRes(QFileInfoList);
+    void showControlView();
+
 public:
     VideoContentWidgets *m_contentWid;
 private:
@@ -53,7 +55,8 @@ private:
     void readSetting();
     void setOriginState();
 public slots:
-     void slot_onCurrentMediaChanged(QMediaContent);
+    void slot_onCurrentMediaChanged(QMediaContent);
+    void slot_exit();
 private slots:
     void slot_onMediaStateChanged(QMediaPlayer::MediaStatus);
     void slot_onPlayerStateChanged(QMediaPlayer::State);
@@ -68,7 +71,6 @@ private slots:
     void slot_lastVideo();
     void slot_addVideo();
     void slot_volumeChanged(int);
-    void slot_exit();
     void slot_refreshMediaResource();
     void slot_changePlayMode();
     void slot_fastForward();

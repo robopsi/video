@@ -22,6 +22,7 @@ public:
     void setPauseStyle();
     void updatePlayModeIcon(PlayMode playMode);
     void updateVolumeSliderValue(int value);
+
 private:
     FlatButton *m_btnOpenFile;
     FlatButton *m_btnPlayPause;
@@ -37,8 +38,10 @@ private:
 
     void initLayout();
     void initConnection();
+
 protected:
     void mousePressEvent(QMouseEvent *);
+
 signals:
     void openFileClick();
     void volumeValueChanged(int);
