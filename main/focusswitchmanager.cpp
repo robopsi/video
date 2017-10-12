@@ -120,6 +120,6 @@ void FocusSwitchManager::insertIntoMap(const QString &key, QWidget *value)
     int colume = key.split(",").at(1).toInt();
     rowCount = row > rowCount ? row : rowCount;
     columnCount[row] = colume > columnCount[row] ? colume : columnCount[row];
-    qDebug("rowCount: %d, row: %d, columeCount: %d", rowCount, row, columnCount[row]);
+
     m_widgets.insert(key, value);
 }

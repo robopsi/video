@@ -31,7 +31,6 @@ public:
     void saveVolume(int volume);
     void updateVolume(bool volumeAdd);
     void setPlayerPause(){m_player->pause();}
-    QFileInfoList findAllVideoFiles(const QString &serachPath);
     void updateUiByRes(QFileInfoList);
     void showControlView();
 

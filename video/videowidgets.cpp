@@ -115,11 +115,6 @@ void VideoWidgets::initPlayerAndConnection()
     connect(m_fullScreenContrlWid->getControlWidget(),SIGNAL(playListClick()),this,SLOT(slot_resizePlayList()));
 }
 
-QFileInfoList VideoWidgets::findAllVideoFiles(const QString &serachPath)
-{
-    return m_fullScreenContrlWid->getListWidget()->findVideoFiles(serachPath);
-}
-
 void VideoWidgets::showControlView()
 {
     m_fullScreenContrlWid->slot_showControlView(m_player->state() != QMediaPlayer::StoppedState);
@@ -201,6 +196,9 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
             return;
         }
 #endif
+        m_fullScreenContrlWid->hidePlayList();
+        m_fullScreenContrlWid->slot_showControlView(true);
+
         if(m_mediaLoadThread){
             delete m_mediaLoadThread;
             m_mediaLoadThread = NULL;
@@ -208,9 +206,6 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
 
         m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
         m_mediaLoadThread->start();
-
-        m_fullScreenContrlWid->hidePlayList();
-        m_fullScreenContrlWid->slot_showControlView(true);
     }
 }
 
@@ -258,25 +253,23 @@ void VideoWidgets::slot_nextVideo(bool isEndofMedia)
             return;
         }
 #endif
+        m_fullScreenContrlWid->hidePlayList();
+        if(!isEndofMedia){
+            m_fullScreenContrlWid->slot_showControlView(true);
+        }
+
         if(m_mediaLoadThread){
             delete m_mediaLoadThread;
             m_mediaLoadThread = NULL;
         }
 
-        m_fullScreenContrlWid->hidePlayList();
         m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
         m_mediaLoadThread->start();
-
-        if(!isEndofMedia){
-            m_fullScreenContrlWid->slot_showControlView(true);
-        }
     }
-
 }
 
 void VideoWidgets::slot_lastVideo()
 {
-    qDebug("last video..");
     if(m_mediaLoadThread && m_mediaLoadThread->isRunning()){
         return;
     }
@@ -296,16 +289,16 @@ void VideoWidgets::slot_lastVideo()
             return;
         }
 #endif
+        m_fullScreenContrlWid->hidePlayList();
+        m_fullScreenContrlWid->slot_showControlView(true);
+
         if(m_mediaLoadThread){
             delete m_mediaLoadThread;
             m_mediaLoadThread = NULL;
         }
 
-        m_fullScreenContrlWid->hidePlayList();
         m_mediaLoadThread = new MediaLoadThread(this,m_player,url);
         m_mediaLoadThread->start();
-
-        m_fullScreenContrlWid->slot_showControlView(true);
     }
 }
 
@@ -345,23 +338,7 @@ void VideoWidgets::slot_changePlayMode()
 
 void VideoWidgets::slot_refreshMediaResource()
 {
-    bool isConfirm;
-    QString appendSuffix = QInputDialog::getText(mainWindow,"Add Refresh Suffix",
-                                                 "Please input extra file suffix",
-                                                 QLineEdit::Normal,
-                                                 "",
-                                                 &isConfirm);
-    if(isConfirm){
-        if(!appendSuffix.isEmpty()){
-            if(appendSuffix.contains(".")){
-                QFileInfo fileInfo(appendSuffix);
-                appendSuffix=fileInfo.suffix();
-            }
-
-            m_fullScreenContrlWid->getListWidget()->addRefreshSuffix(appendSuffix);
-        }
-        mainWindow->slot_updateMedia();
-    }
+    mainWindow->slot_updateMedia();
 }
 
 void VideoWidgets::slot_onDurationChanged(qint64 duration)
@@ -430,7 +407,7 @@ void VideoWidgets::slot_exit()
     m_player->setMedia(NULL);
 
     savaSetting();
-    mainWindow->close();
+    mainWindow->exitApplication();
 }
 
 void VideoWidgets::updateVolume(bool volumeAdd)

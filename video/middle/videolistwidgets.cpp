@@ -1,10 +1,8 @@
 #include "videolistwidgets.h"
 
-#include <QDir>
 #include <QTime>
 #include <QFileDialog>
 #include <QMediaPlayer>
-#include <QDirIterator>
 #include <QFile>
 #include <QThread>
 #include "focusswitchmanager.h"
@@ -25,25 +23,6 @@ void VideoListWidgets::initData()
 {
     // Initialize video play list.
     m_playList = new VideoList(this);
-
-    m_refreshSuffixList.append("mp4");
-    m_refreshSuffixList.append("avi");
-    m_refreshSuffixList.append("rm");
-    m_refreshSuffixList.append("rmvb");
-    m_refreshSuffixList.append("wmv");
-    m_refreshSuffixList.append("mkv");
-    m_refreshSuffixList.append("asf");
-    m_refreshSuffixList.append("mov");
-    m_refreshSuffixList.append("ts");
-    m_refreshSuffixList.append("mpg");
-    m_refreshSuffixList.append("mpg");
-    m_refreshSuffixList.append("m2ts");
-    m_refreshSuffixList.append("trp");
-    m_refreshSuffixList.append("flv");
-    m_refreshSuffixList.append("WEBM");
-    m_refreshSuffixList.append("3GP");
-    m_refreshSuffixList.append("Vob");
-    m_refreshSuffixList.append("MPG");
 }
 
 void VideoListWidgets::initLayout()
@@ -80,11 +59,6 @@ void VideoListWidgets::initConnection()
     connect(m_localTable,SIGNAL(longPressedEvent(int)),this,SIGNAL(tableLongPressed(int)));
 }
 
-void VideoListWidgets::addRefreshSuffix(QString suffix)
-{
-    m_refreshSuffixList.append(suffix);
-}
-
 void VideoListWidgets::setOriginState()
 {
     m_localTable->setOriginState();
@@ -93,33 +67,11 @@ void VideoListWidgets::setOriginState()
 void VideoListWidgets::deleteItem(int row)
 {
     QFile file(m_playList->getUrlAt(row).path());
-    if(file.exists()){
+    if (file.exists())
         file.remove();
-    }
+
     m_localTable->removeTableItem(row);
     m_playList->removeItem(row);
-}
-
-QFileInfoList VideoListWidgets::findVideoFiles(const QString& path)
-{
-    QFileInfoList videoFiles;
-
-    QDirIterator it(path,QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
-    while (!QThread::currentThread()->isInterruptionRequested()&&it.hasNext()){
-        QString name = it.next();
-        QFileInfo info(name);
-        if (info.isDir()){
-            videoFiles.append(findVideoFiles(name));
-        }
-        else{
-            for(int i=0;i<m_refreshSuffixList.count();i++){
-                if(info.suffix().compare(m_refreshSuffixList.at(i),Qt::CaseInsensitive) == 0){
-                    videoFiles.append(info);
-                }
-            }
-        }
-    }
-    return videoFiles;
 }
 
 void VideoListWidgets::updateResUi(QFileInfoList fileList)

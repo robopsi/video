@@ -10,6 +10,8 @@
 
 #include "MediaNotificationReceiver.h"
 
+class MediaUpdateThread;
+
 /**
  * The main window of application.
  *
@@ -29,11 +31,15 @@ protected:
     void enableApplication();
 public:
     VideoWidgets* getVideoWidget(){return m_videoWid;}
+    void exitApplication();
+
 private:
     bool mediaHasUpdate;
     VideoWidgets *m_videoWid;
-    // Thread for media resource update.
+
     MediaNotificationReceiver m_notificationReceiver;
+    MediaUpdateThread *mediaUpdateThread;
+
 private:
     void initData();
     void initLayout();
@@ -51,12 +57,21 @@ signals:
     void updateUiByRes(QFileInfoList videoFileList);
 };
 
-class mediaUpdateThread:public QThread
+class MediaUpdateThread:public QThread
 {
 public:
-    mediaUpdateThread(QObject *parent ,MainWindow *mainWindow);
+    MediaUpdateThread(QObject *parent ,MainWindow *mainWindow);
+    ~MediaUpdateThread(){}
+
+    void waitForThreadFinished();
+
 private:
     MainWindow *m_mainWindow;
+
+    // List of search suffix when search video resource.
+    QList<QString> m_searchSuffixList;
+    QFileInfoList findVideoFiles(const QString& path);
+
 protected:
     void run();
 };

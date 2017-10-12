@@ -1,9 +1,13 @@
 #include "mainwindow.h"
 #include "global_value.h"
+#include "focusswitchmanager.h"
 
-#include <focusswitchmanager.h>
+#include <QDir>
+#include <QDirIterator>
 
-MainWindow::MainWindow(QWidget *parent) :BaseWindow(parent),mediaHasUpdate(false)
+MainWindow::MainWindow(QWidget *parent):BaseWindow(parent),
+    mediaHasUpdate(false),
+    mediaUpdateThread(0)
 {
     initData();
     initLayout();
@@ -55,8 +59,13 @@ void MainWindow::slot_setUpdateFlag()
 void MainWindow::slot_updateMedia()
 {
     qDebug()<<"Update media resource.";
-    mediaUpdateThread *thread = new mediaUpdateThread(this,this);
-    thread->start();
+    if (mediaUpdateThread) {
+        delete mediaUpdateThread;
+        mediaUpdateThread = 0;
+    }
+
+    mediaUpdateThread = new MediaUpdateThread(this,this);
+    mediaUpdateThread->start();
     mediaHasUpdate = false;
 }
 
@@ -76,6 +85,14 @@ void MainWindow::enableApplication()
 {
     qDebug("enable video application.");
     this->setVisible(true);
+}
+
+void MainWindow::exitApplication()
+{
+    if(mediaUpdateThread && mediaUpdateThread->isRunning())
+        mediaUpdateThread->waitForThreadFinished();
+
+    this->close();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -113,7 +130,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         qDebug("Key_Enter");
         FocusSwitchManager::getInstance()->clickCurrentWidget();
         break;
-    case Qt::Key_Back:
+    case Qt::Key_Return:
         m_videoWid->slot_exit();
         break;
     default:
@@ -124,14 +141,63 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     QWidget::keyPressEvent(event);
 }
 
-mediaUpdateThread::mediaUpdateThread(QObject *parent,MainWindow *mainWindow):QThread(parent)
+MediaUpdateThread::MediaUpdateThread(QObject *parent,MainWindow *mainWindow):QThread(parent)
 {
     m_mainWindow = mainWindow;
     qRegisterMetaType<QFileInfoList>("QFileInfoList");
+
+    m_searchSuffixList.append("mp4");
+    m_searchSuffixList.append("avi");
+    m_searchSuffixList.append("rm");
+    m_searchSuffixList.append("rmvb");
+    m_searchSuffixList.append("wmv");
+    m_searchSuffixList.append("mkv");
+    m_searchSuffixList.append("asf");
+    m_searchSuffixList.append("mov");
+    m_searchSuffixList.append("ts");
+    m_searchSuffixList.append("mpg");
+    m_searchSuffixList.append("mpg");
+    m_searchSuffixList.append("m2ts");
+    m_searchSuffixList.append("trp");
+    m_searchSuffixList.append("flv");
+    m_searchSuffixList.append("WEBM");
+    m_searchSuffixList.append("3GP");
+    m_searchSuffixList.append("Vob");
+    m_searchSuffixList.append("MPG");
 }
 
-void mediaUpdateThread::run()
+void MediaUpdateThread::waitForThreadFinished()
 {
-    QFileInfoList videoFileList = m_mainWindow->getVideoWidget()->findAllVideoFiles(VIDEO_SEARCH_PATH);
-    emit m_mainWindow->updateUiByRes(videoFileList);
+    requestInterruption();
+    quit();
+    wait();
+}
+
+QFileInfoList MediaUpdateThread::findVideoFiles(const QString &path)
+{
+    QFileInfoList videoFiles;
+
+    QDirIterator it(path, QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
+    while (it.hasNext() && !isInterruptionRequested()){
+        QString name = it.next();
+        QFileInfo info(name);
+        if (info.isDir()){
+            videoFiles.append(findVideoFiles(name));
+        }
+        else{
+            for(int i = 0; i < m_searchSuffixList.count(); i++){
+                if(info.suffix().compare(m_searchSuffixList.at(i), Qt::CaseInsensitive) == 0){
+                    videoFiles.append(info);
+                }
+            }
+        }
+    }
+    return videoFiles;
+}
+
+void MediaUpdateThread::run()
+{
+    QFileInfoList videoFileList = findVideoFiles(VIDEO_SEARCH_PATH);
+    if (!isInterruptionRequested())
+        emit m_mainWindow->updateUiByRes(videoFileList);
 }
