@@ -26,3 +26,10 @@ RESOURCES += \
     res_main.qrc \
     res_video.qrc \
     qml.qrc \
+    i18n.qrc
+
+HEADERS += \
+    translations/language.h
+
+SOURCES += \
+    translations/language.cpp

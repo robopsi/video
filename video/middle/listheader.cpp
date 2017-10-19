@@ -23,8 +23,8 @@ void ListHeader::initWidget()
 {
     QHBoxLayout *hmainlyout = new QHBoxLayout;
 
-    m_button1 = new FuntionButton(str_listheader_local_video,this);
-    m_button2 = new FuntionButton(str_listheader_net_video,this);
+    m_button1 = new FuntionButton(tr("Local Video"),this);
+    m_button2 = new FuntionButton(tr("Net Video"),this);
     m_button1->setFixedHeight(video_header_height);
     m_button2->setFixedHeight(video_header_height);
 

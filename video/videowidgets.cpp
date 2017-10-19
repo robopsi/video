@@ -55,7 +55,7 @@ void VideoWidgets::readSetting()
 void VideoWidgets::setOriginState()
 {
     m_fullScreenContrlWid->slot_showControlView(false);
-    m_fullScreenContrlWid->getTopWidget()->setPlayingVideoName(str_videoName_default);
+    m_fullScreenContrlWid->getTopWidget()->setPlayingVideoName(tr("videoPlayer"));
     m_fullScreenContrlWid->showPlayList();
     m_fullScreenContrlWid->getListWidget()->setOriginState();
 }
@@ -210,7 +210,7 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
 }
 
 void VideoWidgets::sloat_tableLongPressed(int row){
-    QMessageBox box(QMessageBox::Warning,"question","Sure you want to remove the record ?");
+    QMessageBox box(QMessageBox::Warning,tr("question"),tr("Sure you want to remove the record ?"));
     box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
     if(box.exec() == QMessageBox::Yes){
         m_fullScreenContrlWid->getListWidget()->deleteItem(row);

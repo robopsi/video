@@ -26,7 +26,7 @@ void VideoTopWidgets::initLayout()
     lyout1->addStretch(0);
     lyout1->setContentsMargins(0,0,0,0);
 
-    m_playingVideoName = new QLabel("videoPlayer",this);
+    m_playingVideoName = new QLabel(tr("videoPlayer"),this);
     QFont font = m_playingVideoName->font();
     font.setPixelSize(font_size_big);
     m_playingVideoName->setFont(font);
