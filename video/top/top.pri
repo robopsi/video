@@ -1,5 +1,5 @@
 HEADERS += \
-    $$PWD/videotopwidgets.h
+    $$PWD/topwidgets.h
 
 SOURCES += \
-    $$PWD/videotopwidgets.cpp
+    $$PWD/topwidgets.cpp

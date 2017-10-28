@@ -12,10 +12,10 @@ include(player/player.pri)
 
 HEADERS += \
     $$PWD/videowidgets.h \
-    $$PWD/fullscreencontrolwidgets.h
+    $$PWD/controlsurface.h
 
 SOURCES += \
     $$PWD/videowidgets.cpp \
-    $$PWD/fullscreencontrolwidgets.cpp
+    $$PWD/controlsurface.cpp
 
 

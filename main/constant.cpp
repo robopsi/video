@@ -1,3 +1,3 @@
-#include "global_value.h"
+#include "constant.h"
 
 MainWindow *mainWindow = NULL;

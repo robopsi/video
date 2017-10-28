@@ -1,9 +1,7 @@
 HEADERS += \
-    $$PWD/videobottomwidgets.h\
-    $$PWD/volwidget.h\
-    $$PWD/myslider.h
+    $$PWD/volwidget.h \
+    $$PWD/bottomwidget.h
 
 SOURCES += \
-    $$PWD/videobottomwidgets.cpp\
-    $$PWD/volwidget.cpp\
-    $$PWD/myslider.cpp
+    $$PWD/volwidget.cpp \
+    $$PWD/bottomwidget.cpp

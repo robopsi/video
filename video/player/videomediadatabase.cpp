@@ -2,12 +2,14 @@
 
 #include <QtSql/qsqlquery.h>
 #include <QVariant>
-#include <QSqlError>
+#include <QtSql/QSqlError>
+#include <QDebug>
 
 void videoMediaDataBase::connectVideoInfo()
 {
     QSqlDatabase datebase;
-    if(QSqlDatabase::contains("qt_sql_default_connection"))
+
+    if (QSqlDatabase::contains("qt_sql_default_connection"))
         datebase = QSqlDatabase::database("qt_sql_default_connection");
     else
         datebase = QSqlDatabase::addDatabase("QSQLITE");
@@ -16,11 +18,11 @@ void videoMediaDataBase::connectVideoInfo()
     datebase.exec(QString("create table if not exists videoinfo(id INT ,videoname TEXT,videopath TEXT,duration TEXT)"));
 }
 
-void videoMediaDataBase::removeVideo(const QString& videoName,const QString& path)
+void videoMediaDataBase::removeVideo(const QString &videoName, const QString &path)
 {
     connectVideoInfo();
-    QSqlQuery query;
 
+    QSqlQuery query;
     query.prepare(QString("delete from videoinfo where videoname = ?,videopath = ?"));
     query.addBindValue(videoName);
     query.addBindValue(path);
@@ -31,13 +33,13 @@ void videoMediaDataBase::removeVideo(const QString& videoName,const QString& pat
 void videoMediaDataBase::addVideo(const QString& videoName,const QString& path,const QString& duration)
 {
     connectVideoInfo();
+
     QSqlQuery query;
     query.prepare(QString("select * from videoinfo where id = (select max(id) from videoinfo)"));
     query.exec();
 
-    int  index=0;
-    while(query.next())
-    {
+    int index=0;
+    while (query.next()) {
         index= query.value("id").toInt();
         index++;
     }
@@ -55,6 +57,7 @@ void videoMediaDataBase::addVideo(const QString& videoName,const QString& path,c
 QVector<QStringList> videoMediaDataBase::getVideoInfo()
 {
     connectVideoInfo();
+
     QStringList list1;
     QStringList list2;
     QStringList list3;
@@ -62,24 +65,17 @@ QVector<QStringList> videoMediaDataBase::getVideoInfo()
     QSqlQuery sql_query;
     sql_query.prepare(QString("select * from videoinfo order by id"));
 
-    if(!sql_query.exec())
-    {
-        //        qDebug()<<sql_query.lastError();
-    }
-    else
-    {
-        while(sql_query.next())
-        {
-            QString songname = sql_query.value("videoname").toString();
-            QString songurl = sql_query.value("videopath").toString();
-            QString songdur=sql_query.value("duration").toString();
-
-            list1<<songname;
-            list2<<songurl;
-            list3<<songdur;
+    if (!sql_query.exec()) {
+        qDebug() << sql_query.lastError();
+    } else {
+        while (sql_query.next()) {
+            list1 << sql_query.value("videoname").toString();
+            list2 << sql_query.value("videopath").toString();
+            list3 << sql_query.value("duration").toString();
         }
     }
     QVector<QStringList> vec;
-    vec<<list1<<list2<<list3;
+    vec << list1 << list2 << list3;
+
     return vec;
 }*/

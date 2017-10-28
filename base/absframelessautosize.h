@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QMouseEvent>
 
-enum CursorPos{Default,Right,Left,Bottom,Top,TopRight,TopLeft,BottomRight,BottomLeft};
+enum CursorPos{Default, Right, Left, Bottom, Top, TopRight, TopLeft, BottomRight, BottomLeft};
 struct pressWindowsState
 {
     bool MousePressed;
@@ -20,11 +20,10 @@ class AbsFrameLessAutoSize : public QWidget
 public:
     AbsFrameLessAutoSize(QWidget *parent = 0);
     ~AbsFrameLessAutoSize(){}
-
     inline void setBorder(int border);
     void mouseMoveRect(const QPoint &p);
-protected:
 
+protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);

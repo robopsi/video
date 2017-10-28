@@ -7,39 +7,41 @@
 #include "MediaNotification.h"
 #include <QDebug>
 
-MediaNotificationReceiver::MediaNotificationReceiver(){
-    qDebug()<<"MediaNotificationReceiver()";
+MediaNotificationReceiver::MediaNotificationReceiver()
+{
+    qDebug() << "MediaNotificationReceiver()";
 }
 
-MediaNotificationReceiver::~MediaNotificationReceiver(){
-    qDebug()<<"~MediaNotificationReceiver()";
-    if(m_tcpSocket){
+MediaNotificationReceiver::~MediaNotificationReceiver()
+{
+    qDebug() << "~MediaNotificationReceiver()";
+    if (m_tcpSocket) {
         delete m_tcpSocket;
         m_tcpSocket = 0;
     }
 }
 
-
-void MediaNotificationReceiver::receive(){
-    qDebug()<<"receive()";
-    m_tcpSocket = new QTcpSocket(this);
-    connect(m_tcpSocket,SIGNAL(readyRead()),this,SLOT(readMesg()));
-    connect(m_tcpSocket,SIGNAL(connected()),this,SLOT(onConnected()));
-    m_tcpSocket->connectToHost("127.0.0.1",PORT);
-
-}
-void MediaNotificationReceiver::readMesg() //读取信息
+void MediaNotificationReceiver::receive()
 {
-    qDebug()<<"MediaNotificationReceiver::readMesg()";
+    qDebug() << "receive()";
+    m_tcpSocket = new QTcpSocket(this);
+    connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readMesg()));
+    connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(onConnected()));
+    m_tcpSocket->connectToHost("127.0.0.1", PORT);
+}
 
-    QByteArray qba =   m_tcpSocket->readAll();
-    MediaNotification* notification=(MediaNotification*)qba.data();
+void MediaNotificationReceiver::readMesg()
+{
+    qDebug() << "MediaNotificationReceiver::readMesg()";
+    QByteArray qba = m_tcpSocket->readAll();
+    MediaNotification* notification = (MediaNotification*)qba.data();
     qba.data();
+    qDebug() << "client receive:" << notification->data.path << " type:" << notification->event;
 
-    qDebug()<<"client receive:"<<notification->data.path<<" type:"<<notification->event;
     emit mediaNotification(notification);
 }
-void MediaNotificationReceiver::onConnected(){
 
-    qDebug()<<"onConnected()";
+void MediaNotificationReceiver::onConnected()
+{
+    qDebug() << "onConnected()";
 }

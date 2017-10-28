@@ -1,46 +1,58 @@
 #include "mainwindow.h"
-#include "global_value.h"
+#include "constant.h"
 #include "focusswitchmanager.h"
 
 #include <QDir>
 #include <QDirIterator>
+#include <QStandardPaths>
+#include <QApplication>
 
-MainWindow::MainWindow(QWidget *parent):BaseWindow(parent),
+const QString VIDEO_SEARCH_PATH = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/mnt");
+
+MainWindow::MainWindow(QWidget *parent) : BaseWindow(parent),
     mediaHasUpdate(false),
-    mediaUpdateThread(0)
+    m_mediaUpdateThread(0)
 {
     initData();
     initLayout();
     initConnection();
+
     slot_updateMedia();
 }
 
 void MainWindow::initData()
 {
-    // Initialize global main class of 'MainWindow' for other widgets invokes.
-    mainWindow = this;
-    // Start media source update thread.
-    // Uevent for usb and inotify for file modify.
+    setStyleSheet("QPushButton:pressed{padding:2px;background:rgb(204,228,247)}");
 
-    m_notificationReceiver.receive();
+    // initialize global main class of 'MainWindow' for other widgets invokes.
+    mainWindow = this;
+
+    // start media source update thread.
+    // uevent for usb and inotify for file modify.
+    m_mediaUpdateReceiver = new MediaNotificationReceiver();
+    m_mediaUpdateReceiver->receive();
+
+    m_mediaUpdateThread = new MediaUpdateThread(this);
 }
 
-void MainWindow::initLayout(){
+void MainWindow::initLayout()
+{
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
     m_videoWid = new VideoWidgets(this);
+
     mainLayout->addWidget(m_videoWid);
-    mainLayout->setContentsMargins(0,0,0,0);
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
 
     setLayout(mainLayout);
 }
 
 void MainWindow::initConnection()
 {
-    // Update media resource when receive signals from 'uevent' or 'inotify'.
-    connect(this,SIGNAL(beginUpdateMediaResource()),this,SLOT(slot_setUpdateFlag()));
-    connect(this,SIGNAL(updateUiByRes(QFileInfoList)),this,SLOT(slot_updateUiByRes(QFileInfoList)));
-    connect(&m_notificationReceiver,SIGNAL(mediaNotification(MediaNotification*)),this,SLOT(slot_setUpdateFlag()));
+    connect(this, SIGNAL(beginUpdateMediaResource()), this, SLOT(slot_setUpdateFlag()));
+    connect(this, SIGNAL(searchResultAvailable(QFileInfoList)), this, SLOT(slot_updateUiByRes(QFileInfoList)));
+    connect(m_mediaUpdateReceiver, SIGNAL(mediaNotification(MediaNotification*)), this, SLOT(slot_setUpdateFlag()));
 }
 
 void MainWindow::slot_setUpdateFlag()
@@ -50,22 +62,21 @@ void MainWindow::slot_setUpdateFlag()
      * So set a 500ms duration to ignore theres no-use siganls.
      * Note: it is expected to optimize.
      */
-    if(!mediaHasUpdate){
+    if (!mediaHasUpdate) {
         mediaHasUpdate = true;
-        QTimer::singleShot(500,this,SLOT(slot_updateMedia()));
+        QTimer::singleShot(500, this, SLOT(slot_updateMedia()));
     }
 }
 
 void MainWindow::slot_updateMedia()
 {
-    qDebug()<<"Update media resource.";
-    if (mediaUpdateThread) {
-        delete mediaUpdateThread;
-        mediaUpdateThread = 0;
+    if (m_mediaUpdateThread->isRunning()) {
+        mediaHasUpdate = false;
+        return;
     }
 
-    mediaUpdateThread = new MediaUpdateThread(this,this);
-    mediaUpdateThread->start();
+    qDebug("Update media resource.");
+    m_mediaUpdateThread->start();
     mediaHasUpdate = false;
 }
 
@@ -89,17 +100,25 @@ void MainWindow::enableApplication()
 
 void MainWindow::exitApplication()
 {
-    if(mediaUpdateThread && mediaUpdateThread->isRunning())
-        mediaUpdateThread->waitForThreadFinished();
+    if (m_mediaUpdateReceiver) {
+        delete m_mediaUpdateReceiver;
+        m_mediaUpdateReceiver = 0;
+    }
 
-    this->close();
+    if (m_mediaUpdateThread->isRunning())
+        m_mediaUpdateThread->waitForThreadFinished();
+
+    qApp->exit(0);
+}
+
+VideoWidgets* MainWindow::getVideoWidget()
+{
+    return m_videoWid;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    qDebug()<<"Received keypress event with key value:"<<event->key();
-    switch(event->key())
-    {
+    switch (event->key()) {
     case Qt::Key_VolumeDown:
         m_videoWid->updateVolume(false);;
         break;
@@ -107,44 +126,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         m_videoWid->updateVolume(true);
         break;
     case Qt::Key_PowerOff:
-        // when key_power enter
         m_videoWid->setPlayerPause();
-        break;
-    case Qt::Key_Left:
-        qDebug("Key_Left");
-        FocusSwitchManager::getInstance()->focusPreviousChild();
-        break;
-    case Qt::Key_Right:
-        qDebug("Key_Right");
-        FocusSwitchManager::getInstance()->focusNextChild();
-        break;
-    case Qt::Key_Up:
-        qDebug("Key_Up");
-        FocusSwitchManager::getInstance()->focusAboveChild();
-        break;
-    case Qt::Key_Down:
-        qDebug("Key_Down");
-        FocusSwitchManager::getInstance()->focusBelowChild();
-        break;
-    case Qt::Key_Enter:
-        qDebug("Key_Enter");
-        FocusSwitchManager::getInstance()->clickCurrentWidget();
-        break;
-    case Qt::Key_Return:
-        m_videoWid->slot_exit();
         break;
     default:
         break;
     }
-
-    m_videoWid->showControlView();
-    QWidget::keyPressEvent(event);
 }
 
-MediaUpdateThread::MediaUpdateThread(QObject *parent,MainWindow *mainWindow):QThread(parent)
+MediaUpdateThread::MediaUpdateThread(MainWindow *mainWindow) : QThread(mainWindow)
 {
     m_mainWindow = mainWindow;
-    qRegisterMetaType<QFileInfoList>("QFileInfoList");
 
     m_searchSuffixList.append("mp4");
     m_searchSuffixList.append("avi");
@@ -164,6 +155,8 @@ MediaUpdateThread::MediaUpdateThread(QObject *parent,MainWindow *mainWindow):QTh
     m_searchSuffixList.append("3GP");
     m_searchSuffixList.append("Vob");
     m_searchSuffixList.append("MPG");
+
+    qRegisterMetaType<QFileInfoList>("QFileInfoList");
 }
 
 void MediaUpdateThread::waitForThreadFinished()
@@ -177,21 +170,20 @@ QFileInfoList MediaUpdateThread::findVideoFiles(const QString &path)
 {
     QFileInfoList videoFiles;
 
-    QDirIterator it(path, QDir::Files|QDir::Dirs|QDir::NoDotAndDotDot);
-    while (it.hasNext() && !isInterruptionRequested()){
+    QDirIterator it(path, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    while (it.hasNext() && !isInterruptionRequested()) {
         QString name = it.next();
         QFileInfo info(name);
-        if (info.isDir()){
+        if (info.isDir()) {
             videoFiles.append(findVideoFiles(name));
-        }
-        else{
-            for(int i = 0; i < m_searchSuffixList.count(); i++){
-                if(info.suffix().compare(m_searchSuffixList.at(i), Qt::CaseInsensitive) == 0){
+        } else {
+            for (int i = 0; i < m_searchSuffixList.count(); i++) {
+                if (info.suffix().compare(m_searchSuffixList.at(i), Qt::CaseInsensitive) == 0)
                     videoFiles.append(info);
-                }
             }
         }
     }
+
     return videoFiles;
 }
 
@@ -199,5 +191,5 @@ void MediaUpdateThread::run()
 {
     QFileInfoList videoFileList = findVideoFiles(VIDEO_SEARCH_PATH);
     if (!isInterruptionRequested())
-        emit m_mainWindow->updateUiByRes(videoFileList);
+        emit m_mainWindow->searchResultAvailable(videoFileList);
 }

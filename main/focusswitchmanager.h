@@ -24,14 +24,13 @@ private:
     FocusSwitchManager();
     static FocusSwitchManager* m_pInstance;
 
+    QWidget *m_currentFocusWidget;
+    QMap<QString, QWidget*> m_widgets;
+
     int rowCount;
     int columnCount[MAX_COLUME_NUM] = {0};
     int m_currentRow;
     int m_currentColume;
-
-    QWidget *m_currentFocusWidget;
-    QMap<QString, QWidget*> m_widgets;
-
 };
 
 #endif // FOCUSSWITCHMANAGER_H

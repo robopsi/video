@@ -1,21 +1,17 @@
 HEADERS += \
     $$PWD/listheader.h \
-    $$PWD/videonetlisttable.h \
-    $$PWD/videolocallisttable.h \
-    $$PWD/videocontentwidget.h \
-    $$PWD/videoslider.h \
-    $$PWD/videoquickcontentwidget.h \
-    $$PWD/videopositionwidget.h \
-    $$PWD/videocontentwidgets.h \
-    $$PWD/videolistwidgets.h
+    $$PWD/contentwidget.h \
+    $$PWD/positionslider.h \
+    $$PWD/listwidget.h \
+    $$PWD/locallisttable.h \
+    $$PWD/positionwidget.h \
+    $$PWD/quickinterfacewidget.h
 
 SOURCES += \
     $$PWD/listheader.cpp \
-    $$PWD/videonetlisttable.cpp \
-    $$PWD/videolocallisttable.cpp \
-    $$PWD/videocontentwidget.cpp \
-    $$PWD/videoslider.cpp \
-    $$PWD/videoquickcontentwidget.cpp \
-    $$PWD/videopositionwidget.cpp \
-    $$PWD/videocontentwidgets.cpp \
-    $$PWD/videolistwidgets.cpp
+    $$PWD/contentwidget.cpp \
+    $$PWD/positionslider.cpp \
+    $$PWD/listwidget.cpp \
+    $$PWD/locallisttable.cpp \
+    $$PWD/positionwidget.cpp \
+    $$PWD/quickinterfacewidget.cpp

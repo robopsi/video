@@ -1,9 +1,9 @@
 HEADERS += \
     $$PWD/videomediadatabase.h \
-    $$PWD/videolist.h \
-    $$PWD/videoinfoutil.h
+    $$PWD/videoinfoutil.h \
+    $$PWD/medialist.h
 
 SOURCES += \
     $$PWD/videomediadatabase.cpp \
-    $$PWD/videolist.cpp \
-    $$PWD/videoinfoutil.cpp
+    $$PWD/videoinfoutil.cpp \
+    $$PWD/medialist.cpp

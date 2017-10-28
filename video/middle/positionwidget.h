@@ -2,31 +2,29 @@
 #define VIDEOPOSITIONWIDGET_H
 
 #include "basewidget.h"
-#include "videoslider.h"
-#include "fullscreencontrolwidgets.h"
+#include "positionslider.h"
 
 #include <QLabel>
 
-class FullScreenControlWidgets;
 
-class VideoPositionWidget:public BaseWidget
+class PositionWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    VideoPositionWidget(QWidget *parent,bool fullScreenStyle = false);
-    ~VideoPositionWidget();
+    PositionWidget(QWidget *parent = 0);
+    ~PositionWidget();
 
-    VideoSlider* getSlider(){return m_slider;}
     void onMediaPositionChanged(qint64 position);
     void onDurationChanged(qint64 duration);
+    void setOriginState();
+
 private:
-    VideoSlider *m_slider;
+    PositionSlider *m_slider;
     QLabel *m_currentTime;
     QLabel *m_totalTime;
-    FullScreenControlWidgets *m_parent;
-    bool isFullScreenStyle;
 
     void initWidget();
+
 signals:
     void sliderValueChange(int);
 };

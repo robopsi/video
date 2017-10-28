@@ -1,8 +1,8 @@
 #include "listheader.h"
-#include <QVBoxLayout>
+#include "constant.h"
+
 #include <QHBoxLayout>
 #include <QMouseEvent>
-#include "global_value.h"
 
 #ifdef DEVICE_EVB
 int video_header_height = 70;
@@ -10,12 +10,12 @@ int video_header_height = 70;
 int video_header_height = 40;
 #endif
 
-ListHeader::ListHeader(QWidget *parent):BaseWidget(parent)
+ListHeader::ListHeader(QWidget *parent) : BaseWidget(parent)
 {
     initWidget();
-    // Init connection.
-    connect(m_button1,SIGNAL(buttonClick()),this,SLOT(slot_onButtonLocalClick()));
-    connect(m_button2,SIGNAL(buttonClick()),this,SLOT(slot_onButtonNetClick()));
+
+    connect(m_button1, SIGNAL(buttonClick()), this, SLOT(slot_onButtonLocalClick()));
+    connect(m_button2, SIGNAL(buttonClick()), this, SLOT(slot_onButtonNetClick()));
     m_button1->setFousedStyle();
 }
 
@@ -23,14 +23,14 @@ void ListHeader::initWidget()
 {
     QHBoxLayout *hmainlyout = new QHBoxLayout;
 
-    m_button1 = new FuntionButton(tr("Local Video"),this);
-    m_button2 = new FuntionButton(tr("Net Video"),this);
+    m_button1 = new FuntionButton(tr("Local Video"), this);
+    m_button2 = new FuntionButton(tr("Net Video"), this);
     m_button1->setFixedHeight(video_header_height);
     m_button2->setFixedHeight(video_header_height);
 
     hmainlyout->addWidget(m_button1);
     hmainlyout->addWidget(m_button2);
-    hmainlyout->setContentsMargins(0,0,0,0);
+    hmainlyout->setMargin(0);
     hmainlyout->setSpacing(0);
 
     setLayout(hmainlyout);
@@ -48,10 +48,11 @@ void ListHeader::slot_onButtonNetClick()
     emit buttonNetClick();
 }
 
-FuntionButton::FuntionButton(QString title,QWidget *parent):BaseWidget(parent)
+FuntionButton::FuntionButton(QString title, QWidget *parent) : BaseWidget(parent)
+  , m_isCurItem(false)
 {
-    m_isCurItem = false;
     initWidget();
+
     m_title->setText(title);
 }
 
@@ -59,22 +60,20 @@ void FuntionButton::initWidget()
 {
     QVBoxLayout *vmainlyout = new QVBoxLayout;
 
-    m_title = new QLabel("",this);
-    QFont font = m_title->font();
-    font.setPixelSize(font_size_big);
-    font.setBold(true);
-    m_title->setFont(font);
+    m_title = new QLabel(this);
+    BaseWidget::setWidgetFontSize(m_title, font_size_big);
+    BaseWidget::setWidgetFontBold(m_title);
     m_title->setAlignment(Qt::AlignCenter);
     m_title->adjustSize();
 
-    m_bottomLine=new QFrame(this);
+    m_bottomLine = new QFrame(this);
     m_bottomLine->setFixedHeight(2);
     m_bottomLine->setStyleSheet("QFrame{border:1px solid rgb(100,100,100,255);}");
-    m_bottomLine->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    m_bottomLine->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     vmainlyout->addWidget(m_title);
     vmainlyout->addWidget(m_bottomLine);
-    vmainlyout->setContentsMargins(0,0,0,0);
+    vmainlyout->setMargin(0);
     vmainlyout->setSpacing(0);
 
     setLayout(vmainlyout);
@@ -88,7 +87,7 @@ void FuntionButton::enterEvent(QEvent *)
 
 void FuntionButton::leaveEvent(QEvent *)
 {
-    if(!m_isCurItem){
+    if (!m_isCurItem) {
         m_title->setStyleSheet("color:rgb(255,255,255);");
         update();
     }
@@ -96,8 +95,7 @@ void FuntionButton::leaveEvent(QEvent *)
 
 void FuntionButton::mousePressEvent(QMouseEvent *event)
 {
-    if(!m_isCurItem && event->button()==Qt::LeftButton)
-    {
+    if (!m_isCurItem && event->button() == Qt::LeftButton) {
         setFousedStyle();
         emit buttonClick();
     }
@@ -108,6 +106,7 @@ void FuntionButton::removeFouseStyle()
     m_isCurItem = false;
     m_title->setStyleSheet("color:rgb(255,255,255);");
     m_bottomLine->setStyleSheet("QFrame{border:1px solid rgb(100,100,100,255);}");
+
     update();
 }
 
@@ -116,5 +115,6 @@ void FuntionButton::setFousedStyle()
     m_isCurItem = true;
     m_title->setStyleSheet("color:rgb(26,158,255);");
     m_bottomLine->setStyleSheet("QFrame{border:1px solid rgb(26,158,255);}");
+
     update();
 }

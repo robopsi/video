@@ -6,7 +6,7 @@
 class VideoInfoUtil
 {
 public:
-    VideoInfoUtil();
+    VideoInfoUtil(){}
 
     /**
      * check whether video resolution is greater than 1920 x 1080

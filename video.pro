@@ -28,8 +28,5 @@ RESOURCES += \
     qml.qrc \
     i18n.qrc
 
-HEADERS += \
-    translations/language.h
-
-SOURCES += \
-    translations/language.cpp
+TRANSLATIONS += translations/i18n_en.ts \
+                translations/i18n_zh.ts

@@ -1,22 +1,20 @@
 #ifndef VIDEOBOTTOMWIDGETS_H
 #define VIDEOBOTTOMWIDGETS_H
 
-#include <QHBoxLayout>
-
 #include "basewidget.h"
 #include "basepushbutton.h"
-#include "bottom/volwidget.h"
-#include "fullscreencontrolwidgets.h"
-#include "player/videolist.h"
+#include "volwidget.h"
+#include "controlsurface.h"
+#include "player/medialist.h"
 
-class FullScreenControlWidgets;
+class ControlSurface;
 
-class VideoBottomWidgets:public BaseWidget
+class BottomWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    VideoBottomWidgets(QWidget *parent=0);
-    ~VideoBottomWidgets();
+    BottomWidget(QWidget *parent = 0);
+    ~BottomWidget();
 
     void setPlayingStyle();
     void setPauseStyle();
@@ -24,6 +22,8 @@ public:
     void updateVolumeSliderValue(int value);
 
 private:
+    ControlSurface *m_parent;
+
     FlatButton *m_btnOpenFile;
     FlatButton *m_btnPlayPause;
     FlatButton *m_btnNext;
@@ -33,8 +33,6 @@ private:
     FlatButton *m_btnRefresh;
     FlatButton *m_btnPlayMode;
     FlatButton *m_btnPlayList;
-
-    FullScreenControlWidgets *m_parent;
 
     void initLayout();
     void initConnection();

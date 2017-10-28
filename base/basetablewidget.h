@@ -13,46 +13,43 @@
 class QLineDelegate : public QStyledItemDelegate
 {
 public:
-    QLineDelegate(QTableView* tableView);
+    QLineDelegate(QTableView *tableView);
+
 protected:
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 private:
     QPen pen;
-    QTableView* view;
+    QTableView *view;
 };
 
-class BaseTableWidget:public QTableWidget
+class BaseTableWidget : public QTableWidget
 {
     Q_OBJECT
 public:
-    BaseTableWidget(QWidget *parent = 0,int moveDistanceNextStep = 100);
+    BaseTableWidget(QWidget *parent = 0, int moveDistanceNextStep = 100);
     void init();
 private:
-    // Initialize timer to distinguish longPressed event and click event
+    // timer to distinguish longPressed event and click event
     QTimer *m_timer;
     int pressedRow;
 
-    // Finger move distance when scrollBar value add one.
     int m_moveDistanceNextStep;
-
     QMutex mutex;
     int scrollBarMaximum;
     QPoint m_pressPoint;
-
     bool m_longPressedOn;
+
 private slots:
     void onTimerTimeout();
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void focusInEvent(QFocusEvent *event);
-    void focusOutEvent(QFocusEvent *event);
 
 signals:
     void longPressedEvent(int);
-
 };
 
 #endif // BASETABLEWIDGET_H

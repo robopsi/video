@@ -1,13 +1,19 @@
 #include "basewidget.h"
+
 #include <QStyleOption>
 #include <QPainter>
+#include <QPalette>
+
+static int _id_widget = 0;
 
 BaseWidget::BaseWidget(QWidget *parent) : QWidget(parent)
+  , m_objectId(-1)
 {
+#ifndef DEVICE_EVB
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+#endif
     setMouseTracking(true);
-
-    setStyleSheet("QPushButton:hover, QPushButton:focus{background: rgb(150,150,150);}"
-                  "QPushButton::pressed{background-color:rgb(204,228,247);border: 1px solid rgb(1 , 84 , 153);padding-left:3px;padding-top:3px;}");
 }
 
 void BaseWidget::paintEvent(QPaintEvent *)
@@ -18,6 +24,48 @@ void BaseWidget::paintEvent(QPaintEvent *)
     opt.init(this);
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void BaseWidget::setBackgroundColor(int rValue, int gValue, int bValue)
+{
+    if (m_objectId == -1) {
+        _id_widget++;
+        m_objectId = _id_widget;
+        setObjectName(QString::number(m_objectId));
+    }
+
+    QString styleStr;
+
+    styleStr.append("#").append(QString::number(m_objectId)).append("{background-color:rgb(")
+            .append(QString::number(rValue)).append(",")
+            .append(QString::number(gValue)).append(",")
+            .append(QString::number(bValue)).append(");")
+            .append("}");
+
+    setStyleSheet(styleStr);
+}
+
+void BaseWidget::setTextColorWhite()
+{
+    setStyleSheet("QLabel{color:white;}");
+}
+
+void BaseWidget::setTextColorBlack()
+{
+}
+
+void BaseWidget::setWidgetFontBold(QWidget *widget)
+{
+    QFont font = widget->font();
+    font.setBold(true);
+    widget->setFont(font);
+}
+
+void BaseWidget::setWidgetFontSize(QWidget *widget, int size)
+{
+    QFont font = widget->font();
+    font.setPixelSize(size);
+    widget->setFont(font);
 }
 
 void BaseWidget::mousePressEvent(QMouseEvent *e)
