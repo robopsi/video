@@ -11,6 +11,7 @@
 
 VideoWidgets::VideoWidgets(QWidget *parent) : BaseWidget(parent)
   , m_mediaLoadThread(0)
+  , m_checkThread(0)
 {
     setStyleSheet("QLabel{color:white;}");
 
@@ -73,6 +74,10 @@ void VideoWidgets::initPlayerAndConnection()
 {
     m_player = m_contentWid->getMediaPlayerFormQml();
     m_mediaLoadThread = new MediaLoadThread(this, m_player);
+    m_checkThread = new CheckResolutionThread(this);
+
+    connect(this, SIGNAL(resolutionCheckResultCome(QString,bool)), this, SLOT(slot_updateResolutionMap(QString,bool)));
+    connect(m_checkThread, SIGNAL(resolutionCheckResultCome(QString,bool)), this, SLOT(slot_checkResultAvailable(QString,bool)));
 
     connect(m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slot_onMediaStateChanged(QMediaPlayer::MediaStatus)));
     connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(slot_onPlayerStateChanged(QMediaPlayer::State)));
@@ -120,6 +125,30 @@ void VideoWidgets::updateUiByRes(QFileInfoList fileInfoList)
 
     if (m_player->currentMedia().canonicalUrl().toString() != "")
         slot_onCurrentMediaChanged(m_player->currentMedia());
+}
+
+void VideoWidgets::showUnsupportDialog()
+{
+    QMessageBox box(QMessageBox::Critical, tr("Video Format Error"),
+                    tr("video resolution not support."), QMessageBox::Yes);
+    setOriginState();
+    m_player->setMedia(NULL);
+    QTimer::singleShot(2500, &box, SLOT(close()));
+    box.exec();
+}
+
+void VideoWidgets::slot_updateResolutionMap(QString path, bool isSuitable)
+{
+    m_resolutionMap.insert(path, isSuitable);
+}
+
+void VideoWidgets::slot_checkResultAvailable(QString path, bool isSuitable)
+{
+    slot_updateResolutionMap(path, isSuitable);
+    if (!isSuitable)
+        showUnsupportDialog();
+    else if (!m_mediaLoadThread->isRunning())
+        m_mediaLoadThread->start();
 }
 
 void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
@@ -177,11 +206,21 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
 
-        m_mediaLoadThread->setOnPlayUrl(url);
-        m_mediaLoadThread->start();
-
-        m_onPlayUrl = url;
-        QTimer::singleShot(30, this, SLOT(slot_checkResolution()));
+        CheckState state = resolutionCheck(url.path());
+        switch (state) {
+        case RESOLUTION_SUITABLE:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            m_mediaLoadThread->start();
+            break;
+        case RESOLUTION_UNSUITABLE:
+            showUnsupportDialog();
+            break;
+        case RESOLUTION_UNCHECKED:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -196,11 +235,21 @@ void VideoWidgets::slot_nextVideo(bool hideFurfaceAfterSet)
         if (!hideFurfaceAfterSet)
             m_controlSurface->slot_showFurface(true);
 
-        m_mediaLoadThread->setOnPlayUrl(url);
-        m_mediaLoadThread->start();
-
-        m_onPlayUrl = url;
-        QTimer::singleShot(30, this, SLOT(slot_checkResolution()));
+        CheckState state = resolutionCheck(url.path());
+        switch (state) {
+        case RESOLUTION_SUITABLE:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            m_mediaLoadThread->start();
+            break;
+        case RESOLUTION_UNSUITABLE:
+            showUnsupportDialog();
+            break;
+        case RESOLUTION_UNCHECKED:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -214,28 +263,34 @@ void VideoWidgets::slot_lastVideo()
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
 
-        m_mediaLoadThread->setOnPlayUrl(url);
-        m_mediaLoadThread->start();
-
-        m_onPlayUrl = url;
-        QTimer::singleShot(30, this, SLOT(slot_checkResolution()));
+        CheckState state = resolutionCheck(url.path());
+        switch (state) {
+        case RESOLUTION_SUITABLE:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            m_mediaLoadThread->start();
+            break;
+        case RESOLUTION_UNSUITABLE:
+            showUnsupportDialog();
+            break;
+        case RESOLUTION_UNCHECKED:
+            m_mediaLoadThread->setOnPlayUrl(url);
+            break;
+        default:
+            break;
+        }
     }
 }
 
-void VideoWidgets::slot_checkResolution()
+CheckState VideoWidgets::resolutionCheck(const QString &path)
 {
-#ifndef DEVICE_EVB
-    // check resolution whether support or not.
-    if (!VideoInfoUtil::isVideoSolutionSuitable(m_onPlayUrl.path())
-            && m_player->state() != QMediaPlayer::StoppedState) {
-        QMessageBox box(QMessageBox::Critical, tr("Video Format Error"),
-                        tr("video resolution not support."), QMessageBox::Yes);
-        setOriginState();
-        m_player->setMedia(NULL);
-        QTimer::singleShot(2500, &box, SLOT(close()));
-        box.exec();
+    if (m_resolutionMap.contains(path)) {
+        return m_resolutionMap.value(path) ? RESOLUTION_SUITABLE : RESOLUTION_UNSUITABLE;
+    } else if (!m_checkThread->isRunning()) {
+        m_checkThread->setCheckPath(path);
+        m_checkThread->start();
     }
-#endif
+
+    return RESOLUTION_UNCHECKED;
 }
 
 void VideoWidgets::slot_fastForward()
@@ -331,7 +386,7 @@ void VideoWidgets::saveVolume(int volume)
 
     if (volumeFile->open(QFile::WriteOnly | QIODevice::Truncate)) {
         QTextStream out(volumeFile);
-        out <<volume;
+        out << volume;
         volumeFile->close();
     }
 }
@@ -380,11 +435,6 @@ MediaLoadThread::MediaLoadThread(QObject *parent, QMediaPlayer *player)
     this->m_player = player;
 }
 
-void MediaLoadThread::setOnPlayUrl(QUrl url)
-{
-    this->m_loadUrl = url;
-}
-
 MediaLoadThread::~MediaLoadThread()
 {
     requestInterruption();
@@ -392,8 +442,35 @@ MediaLoadThread::~MediaLoadThread()
     wait();
 }
 
+void MediaLoadThread::setOnPlayUrl(QUrl url)
+{
+    this->m_loadUrl = url;
+}
+
 void MediaLoadThread::run()
 {
     m_player->setMedia(m_loadUrl);
     m_player->play();
+}
+
+CheckResolutionThread::CheckResolutionThread(QObject *parent) : QThread(parent)
+{
+}
+
+CheckResolutionThread::~CheckResolutionThread()
+{
+    requestInterruption();
+    quit();
+    wait();
+}
+
+void CheckResolutionThread::setCheckPath(const QString &path)
+{
+    m_path = path;
+}
+
+void CheckResolutionThread::run()
+{
+    bool isSuitable = VideoInfoUtil::isVideoSolutionSuitable(m_path);
+    emit resolutionCheckResultCome(m_path, isSuitable);
 }

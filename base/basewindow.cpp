@@ -11,7 +11,7 @@ BaseWindow::BaseWindow(QWidget *parent) : AbsFrameLessAutoSize(parent)
     /* Accoding to the message from parent process for next action */
     fileIn.open(stdin, QIODevice::ReadOnly);
     QSocketNotifier* sn = new QSocketNotifier(fileIn.handle(), QSocketNotifier::Read, this);
-//    connect(sn, SIGNAL(activated(int)), this, SLOT(slot_readFromServer(int)));
+    connect(sn, SIGNAL(activated(int)), this, SLOT(slot_readFromServer(int)));
 }
 
 void BaseWindow::slot_readFromServer(int fd)

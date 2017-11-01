@@ -8,7 +8,15 @@
 #include "middle/contentwidget.h"
 #include "controlsurface.h"
 
+enum CheckState
+{
+    RESOLUTION_SUITABLE,
+    RESOLUTION_UNSUITABLE,
+    RESOLUTION_UNCHECKED
+};
+
 class MediaLoadThread;
+class CheckResolutionThread;
 
 /**
  * The whole application contains here. and the layout of VideoWidgets is
@@ -28,11 +36,16 @@ public:
     void setPlayerPause();
     void updateUiByRes(QFileInfoList);
     void showControlView();
+    QMap<QString, bool>* getResolutionMap()
+    {
+        return &m_resolutionMap;
+    }
 
 private:
     QMediaPlayer *m_player;
-    QUrl m_onPlayUrl;
     MediaLoadThread *m_mediaLoadThread;
+    CheckResolutionThread *m_checkThread;
+    QMap<QString, bool> m_resolutionMap;
 
     ContentWidget *m_contentWid;
     ControlSurface *m_controlSurface;
@@ -46,6 +59,11 @@ private:
     void readSetting();
     void setOriginState();
     void saveVolume(int volume);
+    CheckState resolutionCheck(const QString &path);
+    void showUnsupportDialog();
+
+signals:
+    void resolutionCheckResultCome(QString, bool);
 
 private slots:
     void slot_onMediaStateChanged(QMediaPlayer::MediaStatus);
@@ -66,8 +84,9 @@ private slots:
     void slot_fastBackward();
     void slot_onListButtonTrigger();
     void slot_tableLongPressed(int);
+    void slot_checkResultAvailable(QString, bool);
+    void slot_updateResolutionMap(QString, bool);
 
-    void slot_checkResolution();
 public slots:
     void slot_exit();
 };
@@ -86,6 +105,25 @@ protected:
 private:
     QMediaPlayer *m_player;
     QUrl m_loadUrl;
+};
+
+class CheckResolutionThread : public QThread
+{
+    Q_OBJECT
+public:
+    CheckResolutionThread(QObject *parent);
+    ~CheckResolutionThread();
+
+    void setCheckPath(const QString &path);
+
+protected:
+    void run();
+
+private:
+    QString m_path;
+
+signals:
+    void resolutionCheckResultCome(QString, bool);
 };
 
 #endif // VIDEOWIDGETS_H

@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "constant.h"
-#include "focusswitchmanager.h"
+#include "player/videoinfoutil.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -190,6 +190,16 @@ QFileInfoList MediaUpdateThread::findVideoFiles(const QString &path)
 void MediaUpdateThread::run()
 {
     QFileInfoList videoFileList = findVideoFiles(VIDEO_SEARCH_PATH);
+
     if (!isInterruptionRequested())
         emit m_mainWindow->searchResultAvailable(videoFileList);
+
+    QMap<QString, bool> *map = m_mainWindow->getVideoWidget()->getResolutionMap();
+    for (int i = 0; i < videoFileList.size() && !isInterruptionRequested(); i++) {
+        QString filePath = videoFileList.at(i).absoluteFilePath();
+        if (!map->contains(filePath)) {
+            bool isSuitable = VideoInfoUtil::isVideoSolutionSuitable(filePath);
+            map->insert(filePath, isSuitable);
+        }
+    }
 }
