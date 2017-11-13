@@ -13,18 +13,21 @@ RotatableButton::RotatableButton(const QString &icon, QWidget *parent) : QPushBu
     currentPix_ = QPixmap(icon);
 }
 
-bool RotatableButton::isAnimated () const {
+bool RotatableButton::isAnimated () const
+{
     return (timerId_ != -1);
 }
 
-void RotatableButton::startAnimation() {
+void RotatableButton::startAnimation()
+{
     angle_ = 0;
 
     if (timerId_ == -1)
         timerId_ = startTimer(delay_);
 }
 
-void RotatableButton::stopAnimation() {
+void RotatableButton::stopAnimation()
+{
     if (timerId_ != -1)
         killTimer(timerId_);
 
@@ -32,13 +35,15 @@ void RotatableButton::stopAnimation() {
     update();
 }
 
-void RotatableButton::timerEvent(QTimerEvent * /*event*/) {
+void RotatableButton::timerEvent(QTimerEvent * /*event*/)
+{
     angle_ = (angle_ + 30) % 360;
 
     update();
 }
 
-void RotatableButton::paintEvent(QPaintEvent * /*event*/) {
+void RotatableButton::paintEvent(QPaintEvent * /*event*/)
+{
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     if (!displayedWhenStopped_ && !isAnimated()) {
@@ -77,6 +82,7 @@ void RotatableButton::paintEvent(QPaintEvent * /*event*/) {
 }
 
 FlatButton::FlatButton(QWidget *parent) : QPushButton(parent)
+  , longPressedFlag(false)
 {
     setCursor(Qt::PointingHandCursor);
     setFlat(true);
@@ -87,6 +93,7 @@ FlatButton::FlatButton(QWidget *parent) : QPushButton(parent)
 }
 
 FlatButton::FlatButton(const QString& str, QWidget *parent) : QPushButton(str, parent)
+  , longPressedFlag(false)
 {
     setCursor(Qt::PointingHandCursor);
     setFlat(true);
@@ -113,13 +120,14 @@ void FlatButton::mousePressEvent(QMouseEvent *event)
 
 void FlatButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (longPressedFlag)
+    if (longPressedFlag) {
         event->accept();
-    else
+        longPressedFlag = false;
+    } else {
         QPushButton::mouseReleaseEvent(event);
+    }
 
     m_timer->stop();
-    longPressedFlag = false;
 }
 
 void FlatButton::setBackgroundImage(const QString &imageRess)

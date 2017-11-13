@@ -7,7 +7,7 @@
 #ifdef DEVICE_EVB
 int video_header_height = 70;
 #else
-int video_header_height = 40;
+int video_header_height = 50;
 #endif
 
 ListHeader::ListHeader(QWidget *parent) : BaseWidget(parent)
