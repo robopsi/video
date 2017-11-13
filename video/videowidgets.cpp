@@ -451,6 +451,7 @@ void MediaLoadThread::run()
 {
     m_player->setMedia(m_loadUrl);
     m_player->play();
+    QThread::msleep(500);
 }
 
 CheckResolutionThread::CheckResolutionThread(QObject *parent) : QThread(parent)

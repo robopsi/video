@@ -15,7 +15,7 @@ ListHeader::ListHeader(QWidget *parent) : BaseWidget(parent)
     initWidget();
 
     connect(m_button1, SIGNAL(buttonClick()), this, SLOT(slot_onButtonLocalClick()));
-    connect(m_button2, SIGNAL(buttonClick()), this, SLOT(slot_onButtonNetClick()));
+//    connect(m_button2, SIGNAL(buttonClick()), this, SLOT(slot_onButtonNetClick()));
     m_button1->setFousedStyle();
 }
 
@@ -24,12 +24,12 @@ void ListHeader::initWidget()
     QHBoxLayout *hmainlyout = new QHBoxLayout;
 
     m_button1 = new FuntionButton(tr("Local Video"), this);
-    m_button2 = new FuntionButton(tr("Net Video"), this);
+//    m_button2 = new FuntionButton(tr("Net Video"), this);
     m_button1->setFixedHeight(video_header_height);
-    m_button2->setFixedHeight(video_header_height);
+//    m_button2->setFixedHeight(video_header_height);
 
     hmainlyout->addWidget(m_button1);
-    hmainlyout->addWidget(m_button2);
+//    hmainlyout->addWidget(m_button2);
     hmainlyout->setMargin(0);
     hmainlyout->setSpacing(0);
 
@@ -38,8 +38,8 @@ void ListHeader::initWidget()
 
 void ListHeader::slot_onButtonLocalClick()
 {
-    m_button2->removeFouseStyle();
-    emit buttonLocalClick();
+//    m_button2->removeFouseStyle();
+//    emit buttonLocalClick();
 }
 
 void ListHeader::slot_onButtonNetClick()
@@ -63,7 +63,7 @@ void FuntionButton::initWidget()
     m_title = new QLabel(this);
     BaseWidget::setWidgetFontSize(m_title, font_size_big);
     BaseWidget::setWidgetFontBold(m_title);
-    m_title->setAlignment(Qt::AlignCenter);
+    m_title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_title->adjustSize();
 
     m_bottomLine = new QFrame(this);

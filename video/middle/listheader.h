@@ -38,7 +38,7 @@ public:
 
 private:
     FuntionButton *m_button1;
-    FuntionButton *m_button2;
+//    FuntionButton *m_button2;
 
     void initWidget();
 
