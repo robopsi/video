@@ -205,7 +205,10 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
     if (m_player->isAvailable()) {
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
-
+#ifdef DEVICE_EVB
+	m_mediaLoadThread->setOnPlayUrl(url);
+	m_mediaLoadThread->start();
+#else
         CheckState state = resolutionCheck(url.path());
         switch (state) {
         case RESOLUTION_SUITABLE:
@@ -221,6 +224,7 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
         default:
             break;
         }
+#endif
     }
 }
 
@@ -234,7 +238,10 @@ void VideoWidgets::slot_nextVideo(bool hideFurfaceAfterSet)
         m_controlSurface->hidePlayList();
         if (!hideFurfaceAfterSet)
             m_controlSurface->slot_showFurface(true);
-
+#ifdef DEVICE_EVB
+	m_mediaLoadThread->setOnPlayUrl(url);
+	m_mediaLoadThread->start();
+#else
         CheckState state = resolutionCheck(url.path());
         switch (state) {
         case RESOLUTION_SUITABLE:
@@ -250,6 +257,7 @@ void VideoWidgets::slot_nextVideo(bool hideFurfaceAfterSet)
         default:
             break;
         }
+#endif
     }
 }
 
@@ -262,7 +270,10 @@ void VideoWidgets::slot_lastVideo()
     if (m_player->isAvailable()) {
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
-
+#ifdef DEVICE_EVB
+	m_mediaLoadThread->setOnPlayUrl(url);
+	m_mediaLoadThread->start();
+#else
         CheckState state = resolutionCheck(url.path());
         switch (state) {
         case RESOLUTION_SUITABLE:
@@ -278,6 +289,7 @@ void VideoWidgets::slot_lastVideo()
         default:
             break;
         }
+#endif
     }
 }
 
