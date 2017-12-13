@@ -76,29 +76,50 @@ void VideoWidgets::initPlayerAndConnection()
     m_mediaLoadThread = new MediaLoadThread(this, m_player);
     m_checkThread = new CheckResolutionThread(this);
 
-    connect(this, SIGNAL(resolutionCheckResultCome(QString,bool)), this, SLOT(slot_updateResolutionMap(QString,bool)));
-    connect(m_checkThread, SIGNAL(resolutionCheckResultCome(QString,bool)), this, SLOT(slot_checkResultAvailable(QString,bool)));
+    connect(this, SIGNAL(resolutionCheckResultCome(QString,bool)),
+            this, SLOT(slot_updateResolutionMap(QString,bool)));
+    connect(m_checkThread, SIGNAL(resolutionCheckResultCome(QString,bool)), this,
+            SLOT(slot_checkResultAvailable(QString,bool)));
 
-    connect(m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slot_onMediaStateChanged(QMediaPlayer::MediaStatus)));
-    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(slot_onPlayerStateChanged(QMediaPlayer::State)));
-    connect(m_player, SIGNAL(currentMediaChanged(QMediaContent)), this, SLOT(slot_onCurrentMediaChanged(QMediaContent)));
-    connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(slot_onMediaPositionChanged(qint64)));
-    connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(slot_onDurationChanged(qint64)));
-    connect(m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slot_onErrorOn(QMediaPlayer::Error)));
+    connect(m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
+            this, SLOT(slot_onMediaStateChanged(QMediaPlayer::MediaStatus)));
+    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)),
+            this, SLOT(slot_onPlayerStateChanged(QMediaPlayer::State)));
+    connect(m_player, SIGNAL(currentMediaChanged(QMediaContent)),
+            this, SLOT(slot_onCurrentMediaChanged(QMediaContent)));
+    connect(m_player, SIGNAL(positionChanged(qint64)),
+            this, SLOT(slot_onMediaPositionChanged(qint64)));
+    connect(m_player, SIGNAL(durationChanged(qint64)),
+            this, SLOT(slot_onDurationChanged(qint64)));
+    connect(m_player, SIGNAL(error(QMediaPlayer::Error)),
+            this, SLOT(slot_onErrorOn(QMediaPlayer::Error)));
 
-    connect(m_controlSurface->getTopWidget(), SIGNAL(returnClick()), this, SLOT(slot_exit()));
-    connect(m_controlSurface->getListWidget(), SIGNAL(sig_localTableItemClick(int,int)), this, SLOT(slot_onLocalListItemClick(int,int)));
-    connect(m_controlSurface->getListWidget(), SIGNAL(tableLongPressed(int)), this, SLOT(slot_tableLongPressed(int)));
-    connect(m_controlSurface, SIGNAL(sig_sliderPositionChanged(int)), this, SLOT(slot_onSliderPositionChanged(int)));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(playPauseClick()), this, SLOT(slot_setPlayPause()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(nextClick()), this, SLOT(slot_nextVideo()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(lastClick()), this, SLOT(slot_lastVideo()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(nextLongPressed()), this, SLOT(slot_fastForward()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(lastLongPressed()), this, SLOT(slot_fastBackward()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(volumeValueChanged(int)), this, SLOT(slot_volumeChanged(int)));
-    connect(m_controlSurface->getPositionWidget(), SIGNAL(sliderValueChange(int)), this, SLOT(slot_onSliderPositionChanged(int)));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(playModeClick()), this, SLOT(slot_changePlayMode()));
-    connect(m_controlSurface->getBottomWidget(), SIGNAL(playListClick()), this, SLOT(slot_onListButtonTrigger()));
+    connect(m_controlSurface->getTopWidget(), SIGNAL(returnClick()),
+            this, SLOT(slot_exit()));
+    connect(m_controlSurface->getListWidget(), SIGNAL(sig_localTableItemClick(int,int)),
+            this, SLOT(slot_onLocalListItemClick(int,int)));
+    connect(m_controlSurface->getListWidget(), SIGNAL(tableLongPressed(int)),
+            this, SLOT(slot_tableLongPressed(int)));
+    connect(m_controlSurface, SIGNAL(sig_sliderPositionChanged(int)),
+            this, SLOT(slot_onSliderPositionChanged(int)));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(playPauseClick()),
+            this, SLOT(slot_setPlayPause()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(nextClick()),
+            this, SLOT(slot_nextVideo()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(lastClick()),
+            this, SLOT(slot_lastVideo()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(nextLongPressed()),
+            this, SLOT(slot_fastForward()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(lastLongPressed()),
+            this, SLOT(slot_fastBackward()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(volumeValueChanged(int)),
+            this, SLOT(slot_volumeChanged(int)));
+    connect(m_controlSurface->getPositionWidget(), SIGNAL(sliderValueChange(int)),
+            this, SLOT(slot_onSliderPositionChanged(int)));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(playModeClick()),
+            this, SLOT(slot_changePlayMode()));
+    connect(m_controlSurface->getBottomWidget(), SIGNAL(playListClick()),
+            this, SLOT(slot_onListButtonTrigger()));
 }
 
 void VideoWidgets::setOriginState()
@@ -155,8 +176,10 @@ void VideoWidgets::slot_onErrorOn(QMediaPlayer::Error)
 {
     setOriginState();
 
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Critical, tr("Video Error"),
-                                              tr("It has encountered an error."), QMessageBox::Yes, mainWindow);
+    QMessageBox *messageBox = new QMessageBox(QMessageBox::Critical,
+                                              tr("Video Error"),
+                                              tr("It has encountered an error."),
+                                              QMessageBox::Yes, mainWindow);
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     QTimer::singleShot(2500, messageBox, SLOT(close()));
     messageBox->exec();
@@ -206,8 +229,8 @@ void VideoWidgets::slot_onLocalListItemClick(int row, int)
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
 #ifdef DEVICE_EVB
-	m_mediaLoadThread->setOnPlayUrl(url);
-	m_mediaLoadThread->start();
+        m_mediaLoadThread->setOnPlayUrl(url);
+        m_mediaLoadThread->start();
 #else
         CheckState state = resolutionCheck(url.path());
         switch (state) {
@@ -239,8 +262,8 @@ void VideoWidgets::slot_nextVideo(bool hideFurfaceAfterSet)
         if (!hideFurfaceAfterSet)
             m_controlSurface->slot_showFurface(true);
 #ifdef DEVICE_EVB
-	m_mediaLoadThread->setOnPlayUrl(url);
-	m_mediaLoadThread->start();
+        m_mediaLoadThread->setOnPlayUrl(url);
+        m_mediaLoadThread->start();
 #else
         CheckState state = resolutionCheck(url.path());
         switch (state) {
@@ -271,8 +294,8 @@ void VideoWidgets::slot_lastVideo()
         m_controlSurface->hidePlayList();
         m_controlSurface->slot_showFurface(true);
 #ifdef DEVICE_EVB
-	m_mediaLoadThread->setOnPlayUrl(url);
-	m_mediaLoadThread->start();
+        m_mediaLoadThread->setOnPlayUrl(url);
+        m_mediaLoadThread->start();
 #else
         CheckState state = resolutionCheck(url.path());
         switch (state) {

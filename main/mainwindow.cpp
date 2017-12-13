@@ -155,6 +155,7 @@ MediaUpdateThread::MediaUpdateThread(MainWindow *mainWindow) : QThread(mainWindo
     m_searchSuffixList.append("3GP");
     m_searchSuffixList.append("Vob");
     m_searchSuffixList.append("MPG");
+    m_searchSuffixList.append("tp");
 
     qRegisterMetaType<QFileInfoList>("QFileInfoList");
 }
