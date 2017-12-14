@@ -50,6 +50,8 @@ private:
     ContentWidget *m_contentWid;
     ControlSurface *m_controlSurface;
 
+    bool m_audioSetup;
+
     // save normal size of each moudle.
     int top_normal_height;
     int bottom_normal_height;
@@ -60,6 +62,7 @@ private:
     void setOriginState();
     CheckState resolutionCheck(const QString &path);
     void showUnsupportDialog();
+    void stopAudioService();
 
 signals:
     void resolutionCheckResultCome(QString, bool);

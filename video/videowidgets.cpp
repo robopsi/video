@@ -2,6 +2,8 @@
 #include "player/videoinfoutil.h"
 #include "player/medialist.h"
 #include "constant.h"
+/* audio service included */
+#include "musicplayer.h"
 
 #include <QHBoxLayout>
 #include <QStackedLayout>
@@ -12,6 +14,7 @@
 VideoWidgets::VideoWidgets(QWidget *parent) : BaseWidget(parent)
   , m_mediaLoadThread(0)
   , m_checkThread(0)
+  , m_audioSetup(false)
 {
     setStyleSheet("QLabel{color:white;}");
 
@@ -192,6 +195,7 @@ void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
 {
     switch (state) {
     case QMediaPlayer::PlayingState:
+        stopAudioService();
         m_controlSurface->getBottomWidget()->setPlayingStyle();
         break;
     case QMediaPlayer::PausedState:
@@ -200,6 +204,19 @@ void VideoWidgets::slot_onPlayerStateChanged(QMediaPlayer::State state)
     default:
         m_controlSurface->getBottomWidget()->setPauseStyle();
         break;
+    }
+}
+
+void VideoWidgets::stopAudioService()
+{
+    if (!m_audioSetup) {
+        MusicPlayer audioService;
+        audioService.connectToService();
+        if (audioService.state() == MusicPlayer::PlayingState) {
+            audioService.pause();
+        }
+        audioService.clientExit();
+        m_audioSetup = true;
     }
 }
 
