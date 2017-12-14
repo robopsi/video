@@ -58,7 +58,6 @@ private:
     void initPlayerAndConnection();
     void readSetting();
     void setOriginState();
-    void saveVolume(int volume);
     CheckState resolutionCheck(const QString &path);
     void showUnsupportDialog();
 

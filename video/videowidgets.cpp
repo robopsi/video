@@ -35,22 +35,14 @@ void VideoWidgets::readSetting()
     playList->setPlayMode((PlayMode)playModeIndex);
     m_controlSurface->getBottomWidget()->updatePlayModeIcon((PlayMode)playModeIndex);
 
+    // set volume which saved in configration file.
+    int volumeInt = 0;
+    volumeInt = setting.value("volume").toInt();
+
+    m_player->setVolume(volumeInt);
+    m_controlSurface->getBottomWidget()->updateVolumeSliderValue(volumeInt);
+
     setting.endGroup();
-
-    // set volume saved in configration file first.
-    QFile *volumnFile;
-    QDir settingsDir("/data/");
-    if (settingsDir.exists())
-        volumnFile = new QFile("/data/volumn");
-    else
-        volumnFile = new QFile("/etc/volumn");
-
-    volumnFile->open(QFile::ReadOnly | QIODevice::Truncate);
-    QString volumnString(volumnFile->readAll());
-    long volumnInt= volumnString.toInt();
-
-    m_player->setVolume(volumnInt);
-    m_controlSurface->getBottomWidget()->updateVolumeSliderValue(volumnInt);
 }
 
 void VideoWidgets::initLayout()
@@ -406,24 +398,6 @@ void VideoWidgets::slot_volumeChanged(int value)
     m_player->setVolume(value);
     m_controlSurface->getBottomWidget()->updateVolumeSliderValue(m_player->volume());
     m_controlSurface->restartHideTimer();
-    saveVolume(value);
-}
-
-void VideoWidgets::saveVolume(int volume)
-{
-    QDir settingsDir("/data/");
-    QFile *volumeFile;
-
-    if (settingsDir.exists())
-        volumeFile = new QFile("/data/volumn");
-    else
-        volumeFile = new QFile("/etc/volumn");
-
-    if (volumeFile->open(QFile::WriteOnly | QIODevice::Truncate)) {
-        QTextStream out(volumeFile);
-        out << volume;
-        volumeFile->close();
-    }
 }
 
 void VideoWidgets::slot_exit()
@@ -438,6 +412,7 @@ void VideoWidgets::savaSetting()
     QSettings setting("config.ini", QSettings::IniFormat, 0);
     setting.beginGroup("videoConfig");
     setting.setValue("playmode", (int)m_controlSurface->getListWidget()->getMediaList()->getPlayMode());
+    setting.setValue("volume", m_player->volume());
     setting.endGroup();
 }
 
@@ -457,7 +432,6 @@ void VideoWidgets::updateVolume(bool volumeAdd)
     }
 
     m_controlSurface->getBottomWidget()->updateVolumeSliderValue(m_player->volume());
-    saveVolume(m_player->volume());
 }
 
 VideoWidgets::~VideoWidgets()
