@@ -19,6 +19,9 @@ include(main/main.pri)
 INCLUDEPATH +=$$PWD video
 include(video/video.pri)
 
+INCLUDEPATH +=$$PWD audioservice
+include(audioservice/audioservice.pri)
+
 INCLUDEPATH +=$$PWD base
 include(base/base.pri)
 
