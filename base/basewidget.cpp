@@ -9,10 +9,8 @@ static int _id_widget = 0;
 BaseWidget::BaseWidget(QWidget *parent) : QWidget(parent)
   , m_objectId(-1)
 {
-#ifndef DEVICE_EVB
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
-#endif
     setMouseTracking(true);
 }
 

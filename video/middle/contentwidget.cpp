@@ -19,7 +19,12 @@ void ContentWidget::initLayout()
     m_surfaceWid = new QuickInterfaceWidget(this);
     m_surfaceWid->setResizeMode(QQuickWidget::SizeRootObjectToView);
 #ifdef DEVICE_EVB
-    m_surfaceWid->setSource(QUrl("qrc:/video3399.qml"));
+#ifndef PLATFORM_WAYLAND
+	m_surfaceWid->setSource(QUrl("qrc:/video3399_eglfs.qml"));
+	m_surfaceWid->setClearColor(QColor(Qt::transparent));
+#else
+	m_surfaceWid->setSource(QUrl("qrc:/video3399.qml"));
+#endif
 #else
     m_surfaceWid->setSource(QUrl("qrc:/video.qml"));
     // set video surface transparent for px3se

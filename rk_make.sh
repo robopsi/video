@@ -28,7 +28,11 @@ check_err_exit(){
 }
 
 if [ "$PRODUCT_NAME"x = "px3-se"x ];then
-sed -i '/DEVICE_EVB/s/^/#&/' $QT_PROJECT_FILE 
+sed -i '/DEVICE_EVB/s/^/#&/' $QT_PROJECT_FILE
+fi
+
+if [[ "$PLATFORM_WAYLAND"x = "no"x ]];then
+	sed -i '/PLATFORM_WAYLAND/s/^/#&/' $QT_PROJECT_FILE
 fi
 
 #get parameter for "-j2~8 and clean"
@@ -82,5 +86,9 @@ fi
 
 #we should restore the modifcation which is made on this script above.
 if [ "$PRODUCT_NAME"x = "px3-se"x ];then
-sed -i '/DEVICE_EVB/s/^.//' $QT_PROJECT_FILE 
+sed -i '/DEVICE_EVB/s/^.//' $QT_PROJECT_FILE
+fi
+
+if [[ "$PLATFORM_WAYLAND"x = "no"x ]];then
+	sed -i '/PLATFORM_WAYLAND/s/^.//' $QT_PROJECT_FILE
 fi

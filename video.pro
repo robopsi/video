@@ -12,7 +12,7 @@ TEMPLATE = app
 
 # 3399Linux、Big DPI
 DEFINES += DEVICE_EVB
-
+DEFINES += PLATFORM_WAYLAND
 INCLUDEPATH +=$$PWD main
 include(main/main.pri)
 
