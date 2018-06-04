@@ -7,7 +7,10 @@
 #include <QStandardPaths>
 #include <QApplication>
 
-const QString VIDEO_SEARCH_PATH = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/mnt");
+const QString VIDEO_SEARCH_PATH_SDCARD = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/sdcard");
+const QString VIDEO_SEARCH_PATH_UDISK = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/udisk");
+const QString VIDEO_SEARCH_PATH_USERDATA = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/userdata");
+const QString VIDEO_SEARCH_PATH_OEM = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).append("/oem");
 
 MainWindow::MainWindow(QWidget *parent) : BaseWindow(parent),
     mediaHasUpdate(false),
@@ -190,8 +193,10 @@ QFileInfoList MediaUpdateThread::findVideoFiles(const QString &path)
 
 void MediaUpdateThread::run()
 {
-    QFileInfoList videoFileList = findVideoFiles(VIDEO_SEARCH_PATH);
-
+    QFileInfoList videoFileList = findVideoFiles(VIDEO_SEARCH_PATH_SDCARD);
+    videoFileList.append(findVideoFiles(VIDEO_SEARCH_PATH_UDISK));
+    videoFileList.append(findVideoFiles(VIDEO_SEARCH_PATH_USERDATA));
+    videoFileList.append(findVideoFiles(VIDEO_SEARCH_PATH_OEM));
     if (!isInterruptionRequested())
         emit m_mainWindow->searchResultAvailable(videoFileList);
 
